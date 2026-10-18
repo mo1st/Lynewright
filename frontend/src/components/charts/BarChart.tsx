@@ -1,0 +1,2 @@
+import { ChartFrame } from "./ChartFrame";
+export function BarChart({ title, description, items }: { title: string; description: string; items: Array<{ label: string; value: number }> }) { const max = Math.max(...items.map((item) => item.value), 1); return <ChartFrame title={title} description={description}><div className="ui-bar-chart">{items.map((item) => <div key={item.label}><i style={{ height: `${item.value / max * 100}%` }} title={`${item.label}: ${Number(item.value.toFixed(2))}`} /><span>{item.label}</span></div>)}</div></ChartFrame>; }

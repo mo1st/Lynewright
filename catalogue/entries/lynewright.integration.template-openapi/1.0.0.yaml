@@ -1,0 +1,35 @@
+id: lynewright.integration.template-openapi
+version: 1.0.0
+kind: file
+name: OpenAPI Example
+summary: A health check and asynchronous job API.
+description: >-
+  This starter provides a synchronous health check and an asynchronous job
+  endpoint. Its tests start a local FastAPI service and run both operations
+  through a production line with lynewright-testkit; the first job poll is
+  pending and the next is done. Replace the example routes, schemas, and
+  operation IDs with your service contract.
+licence: Apache-2.0
+source: https://catalogue.example.invalid/artifacts/lynewright.integration.template-openapi-1.0.0.yaml
+sha256: 83981a6031b9b7001c934b3c7cc929307bbb6432c21a808665c65f6360135c02
+requires_operator_setup:
+- Start the OpenAPI example service, map it with LYNEWRIGHT_INTERNAL_ENDPOINT__<REF>,
+  and enter <REF> when installing.
+lynewright_version: ^0.1.0
+permissions:
+  capabilities:
+  - network:use
+  egress: none
+  media: none
+  credential_refs: []
+review:
+  reviewer: Lynewright maintainers
+  date: '2026-10-16'
+  catalogue_commit: 703e42c83d01dc96f7b967ff1f205a59c71cb53f
+build:
+  template_repo: https://github.com/lynewright/lynewright-integration-template
+  template_commit: d6e17578deee53c6c885e2ab3d8840985999f021
+  template_path: openapi/lynewright-integration.yaml
+  source_snapshot: sources/template/openapi/lynewright-integration.yaml
+  method: copy file
+  artifact_filename: lynewright.integration.template-openapi-1.0.0.yaml

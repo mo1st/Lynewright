@@ -1,0 +1,20 @@
+[Unit]
+Description=Lynewright runner for Runner Snapshot
+
+[Container]
+Image=lynewright-runner/lynewright-integration-runner-snapshot:1-2-3
+ContainerName=lynewright-runner-lynewright-integration-runner-snapshot
+User=10001:10001
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=all
+Tmpfs=/tmp:rw,noexec,nosuid,nodev,size=64m
+Tmpfs=/work:rw,noexec,nosuid,nodev,size=256m
+Memory=512m
+PidsLimit=128
+CPUQuota=100%
+EnvironmentFile=/etc/lynewright/runner-secrets/lynewright-integration-runner-snapshot.env
+Environment=LYNEWRIGHT_RUNNER_API_URL=http://api:8000
+Environment=LYNEWRIGHT_RUNNER_INTEGRATION_ID=lynewright.integration.runner-snapshot
+Environment=LYNEWRIGHT_RUNNER_MANIFEST=snapshot_package.manifest
+Network=lynewright-runner-lynewright-integration-runner-snapshot.network

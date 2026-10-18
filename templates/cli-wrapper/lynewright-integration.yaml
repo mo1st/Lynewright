@@ -1,0 +1,125 @@
+format: lynewright-integration/1
+id: lynewright.integration.cli-thumbnail
+name: CLI Thumbnail
+version: 1.0.0
+lynewright_version: ^0.1.0
+runtime_kind: openapi
+endpoint_url: https://example.com
+openapi:
+  inline:
+    openapi: 3.0.3
+    info:
+      title: Lynewright CLI Wrapper
+      version: 1.0.0
+    paths:
+      /health:
+        get:
+          operationId: health
+          responses:
+            "200":
+              description: Wrapper health.
+      /jobs:
+        post:
+          operationId: submitJob
+          requestBody:
+            required: true
+            content:
+              multipart/form-data:
+                schema:
+                  type: object
+                  required: [args, input]
+                  properties:
+                    args:
+                      type: string
+                      description: JSON-encoded command arguments.
+                    input:
+                      type: string
+                      format: binary
+          responses:
+            "202":
+              description: Job accepted.
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    required: [job_id]
+                    properties:
+                      job_id: {type: string}
+      /jobs/{job_id}:
+        get:
+          operationId: getJob
+          parameters:
+            - name: job_id
+              in: path
+              required: true
+              schema: {type: string}
+          responses:
+            "200":
+              description: Job state and output artifact links.
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    required: [job_id, status, progress, outputs, error, artifacts]
+                    properties:
+                      job_id: {type: string}
+                      status: {type: string, enum: [queued, running, done, failed]}
+                      progress:
+                        type: array
+                        items: {type: string}
+                      outputs:
+                        type: array
+                        items: {type: string}
+                      error:
+                        type: string
+                        nullable: true
+                      artifacts:
+                        type: array
+                        items:
+                          type: object
+                          required: [name, url, content_type]
+                          properties:
+                            name: {type: string}
+                            url: {type: string, format: uri}
+                            content_type: {type: string}
+                            media_id: {type: string}
+      /jobs/{job_id}/files/{name}:
+        get:
+          operationId: getOutputFile
+          parameters:
+            - name: job_id
+              in: path
+              required: true
+              schema: {type: string}
+            - name: name
+              in: path
+              required: true
+              schema: {type: string}
+          responses:
+            "200":
+              description: Output file bytes.
+              content:
+                application/octet-stream:
+                  schema:
+                    type: string
+                    format: binary
+operations:
+  - operation_id: health
+    description: Check wrapper health.
+  - operation_id: submitJob
+    description: Submit one command with a managed file upload.
+    input_hint:
+      media:
+        body.input: lynewright-upload
+  - operation_id: getJob
+    description: Read job status and materialize declared output files as managed media.
+    output_hint:
+      media:
+        "artifacts.*.url": lynewright-artifact
+  - operation_id: getOutputFile
+    description: Download an output file that matched the command output glob.
+async:
+  operation_id: submitJob
+  status_operation_id: getJob
+  job_id_path: job_id
+  status_argument_path: path.job_id

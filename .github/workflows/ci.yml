@@ -1,0 +1,77 @@
+name: Lynewright checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Export hygiene
+        run: python tools/release/export_public.py --check-tree
+      - name: Identity scan (skips when the private list is absent)
+        run: python tools/release/identity_scan.py --history
+      - name: DCO
+        if: github.event_name == 'pull_request'
+        run: python tools/release/check_dco.py
+      - name: Install Python test dependencies
+        run: |
+          python -m pip install setuptools==81.0.0
+          python -m pip install ./backend -e ./testkit
+      - name: Backend tests and guards
+        working-directory: backend
+        run: python -m pytest app/tests
+      - name: Testkit
+        run: python -m pytest testkit/tests
+      - name: OpenAPI starter (including Lynewright tests)
+        working-directory: templates/starters/openapi
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pytest tests
+      - name: MCP starter (including Lynewright tests)
+        working-directory: templates/starters/mcp
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pytest tests
+      - name: Native starter (including Lynewright tests)
+        working-directory: templates/starters/native
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pip install -e .
+          python -m pytest tests
+      - name: CLI wrapper starter
+        working-directory: templates/starters/cli-wrapper
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pytest tests
+      - name: Catalogue verification and tests
+        working-directory: catalogue
+        run: |
+          python -m pip install -r requirements-test.txt
+          python tools/verify.py
+          python -m pytest -q --ignore=sources
+      - name: Documentation snippets
+        run: python tools/docs/sync_snippets.py --check
+      - name: Frontend tests and build
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test
+          npm run build
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

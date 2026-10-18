@@ -1,0 +1,62 @@
+format: lynewright-integration/1
+id: lynewright.integration.docs-reports
+name: Reports API
+version: 1.0.0
+lynewright_version: ^0.1.0
+runtime_kind: openapi
+endpoint_url: https://api.example.test
+credentials:
+  - name: reports.primary
+    description: Reports API credential stored in Lynewright Settings.
+    required: true
+settings_schema:
+  schema_id: reports_settings
+  fields:
+    - key: workspace_id
+      label: Workspace ID
+      type: text
+      required: true
+      description: Workspace used by report operations.
+openapi:
+  inline:
+    openapi: 3.0.3
+    info:
+      title: Reports API
+      version: 1.0.0
+    paths:
+      /reports:
+        post:
+          operationId: createReport
+          requestBody:
+            required: true
+            content:
+              multipart/form-data:
+                schema:
+                  type: object
+                  properties:
+                    attachment:
+                      type: string
+                      format: binary
+                  required: [attachment]
+          responses:
+            '200':
+              description: Report created
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      artifact_url:
+                        type: string
+                        format: uri
+                    required: [artifact_url]
+operations:
+  - operation_id: createReport
+    enabled: false
+    description: Create a report from one managed attachment.
+    input_hint:
+      media:
+        body.attachment: lynewright-upload
+    output_hint:
+      media:
+        artifact_url: lynewright-artifact

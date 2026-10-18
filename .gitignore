@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.venv/
+backend/.venv/
+venv/
+ENV/
+.pytest_cache/
+.pytest-tmp/
+**/.pytest-tmp/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+dist/
+build/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# SQLite and runtime data
+*.db
+*.sqlite
+*.sqlite3
+data/
+**/data/
+!backend/data/
+backend/data/*
+!backend/data/.gitkeep
+
+# Local package metadata
+*.egg-info/
+runner/wheels/
+frontend/e2e/screens/
+frontend/test-results/
+frontend/playwright-report/
+
+# Keep the signed catalogue release artifacts in the merged repository.
+!catalogue/dist/
+!catalogue/dist/**

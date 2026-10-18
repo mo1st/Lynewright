@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.2",
+  "id": "lynewright.integration.example-native",
+  "name": "Example Native Integration",
+  "version": "1.0.0",
+  "type": "native",
+  "lynewright_version": "^0.1.0",
+  "sdk_version": "1.0.0",
+  "requested_capabilities": ["media:create"],
+  "contributions": ["services", "settings"],
+  "settings_schema": {
+    "schema_id": "example_native_style",
+    "fields": [
+      {"key": "style", "label": "Render style", "type": "enum", "options": ["calm", "bright"], "default": "calm"}
+    ]
+  },
+  "provides": [{
+    "contract": "lynewright.example.native-media",
+    "implementation": "example_native.provider:ExampleMediaProvider",
+    "version": "1.0.0",
+    "capabilities": ["render", "status"],
+    "invocation": "sdk_scoped",
+    "operation_schemas": {
+      "render": {
+        "type": "object",
+        "properties": {"prompt": {"type": "string", "minLength": 1, "maxLength": 200}},
+        "required": ["prompt"],
+        "additionalProperties": false,
+        "caller_capability": "media:create",
+        "read_only": true,
+        "risk_class": "READ_ONLY",
+        "description": "Create a small managed PNG asynchronously."
+      },
+      "status": {
+        "type": "object",
+        "properties": {"job_id": {"type": "string", "minLength": 1}},
+        "required": ["job_id"],
+        "additionalProperties": false,
+        "caller_capability": "media:create",
+        "read_only": true,
+        "risk_class": "READ_ONLY",
+        "description": "Poll a managed PNG render job."
+      }
+    },
+    "async_operations": {
+      "render": {
+        "poll_tool": "status",
+        "task_id_field": "job_id",
+        "poll_argument": "job_id",
+        "state_field": "status",
+        "active_states": ["accepted", "pending"],
+        "terminal_states": ["done", "failed", "cancelled", "canceled", "rejected"]
+      }
+    }
+  }]
+}

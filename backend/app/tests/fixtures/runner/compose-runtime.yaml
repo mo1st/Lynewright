@@ -1,0 +1,38 @@
+services:
+  lynewright-runner-lynewright-integration-runner-snapshot:
+    image: lynewright-runner/lynewright-integration-runner-snapshot:1-2-3
+    user: 10001:10001
+    read_only: true
+    tmpfs:
+    - /tmp:size=64m,mode=1777
+    - /work:size=256m,mode=1777
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    cpus: 1.0
+    mem_limit: 512m
+    pids_limit: 128
+    env_file:
+    - ${LYNEWRIGHT_RUNNER_ENV_FILE:-./runner-secrets/lynewright-integration-runner-snapshot.env}
+    environment:
+      LYNEWRIGHT_RUNNER_API_URL: ${LYNEWRIGHT_RUNNER_API_URL:-http://api:8000}
+      LYNEWRIGHT_RUNNER_INTEGRATION_ID: lynewright.integration.runner-snapshot
+      LYNEWRIGHT_RUNNER_MANIFEST: snapshot_package.manifest
+    networks:
+    - lynewright-integration
+    restart: unless-stopped
+    build:
+      context: ${LYNEWRIGHT_RUNNER_BUILD_CONTEXT:-runner}
+      dockerfile: Containerfile.integration
+      args:
+        RUNNER_BASE_IMAGE: ${LYNEWRIGHT_RUNNER_BASE_IMAGE:-lynewright-runner:latest}
+        INTEGRATION_WHEEL: ${LYNEWRIGHT_RUNNER_WHEEL_FILE:?set the package wheel path
+          relative to runner/ build context}
+        INTEGRATION_WHEEL_FILENAME: ${LYNEWRIGHT_RUNNER_WHEEL_FILENAME:?set the exact
+          PEP 427 wheel filename}
+        INTEGRATION_WHEEL_SHA256: ${LYNEWRIGHT_RUNNER_WHEEL_SHA256:?set the exact
+          package wheel SHA-256}
+networks:
+  lynewright-integration:
+    internal: true

@@ -1,0 +1,41 @@
+id: lynewright.integration.template-thumbnail
+version: 1.0.0
+kind: container
+name: Thumbnail CLI Wrapper
+summary: Draft command-line thumbnail wrapper; no image digest is published.
+description: >-
+  This example wraps one trusted command as a small asynchronous API using a
+  fixed argument array. Its declaration sets parameter schemas, input extension
+  and byte caps, output glob, timeout, output byte cap, and concurrency. Inputs
+  use managed uploads and outputs are stored as scoped media; each job uses a
+  fresh work directory and bounded in-memory job state.
+licence: Apache-2.0
+source: build://image-digest-required
+lynewright_version: ^0.1.0
+permissions:
+  capabilities:
+  - media:read
+  - media:write
+  egress: none
+  media: write
+  credential_refs: []
+limits:
+  cpus: 1
+  memory_mb: 256
+  pids: 64
+  timeout_seconds: 30
+review:
+  reviewer: Lynewright maintainers
+  date: '2026-10-16'
+  catalogue_commit: 703e42c83d01dc96f7b967ff1f205a59c71cb53f
+build:
+  template_repo: https://github.com/lynewright/lynewright-integration-template
+  template_commit: d6e17578deee53c6c885e2ab3d8840985999f021
+  template_path: cli-wrapper/examples/thumbnail
+  source_snapshot: sources/template/cli-wrapper
+  method: build OCI image from the starter Containerfile; pin resulting registry reference
+    by digest
+  containerfile: examples/thumbnail/Containerfile
+  registry_image: ghcr.io/lynewright/template-thumbnail
+  artifact_filename: lynewright-template-thumbnail-linux-amd64.oci.tar
+

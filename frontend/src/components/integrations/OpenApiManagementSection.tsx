@@ -1,0 +1,19 @@
+import { Button } from "../ui";
+import { useEffect, useState } from "react";
+import { integrationManagementApi } from "../../api/integrationManagementClient";
+import type { IntegrationManagementSummary, IntegrationOpenApiOperation } from "../../types";
+import OpenApiContractMappingsSection from "./OpenApiContractMappingsSection";
+import OpenApiResourceMappingsSection from "./OpenApiResourceMappingsSection";
+import type { Mutate } from "./sectionTypes";
+
+type Props = { integration: IntegrationManagementSummary; connectionId: string; busy: boolean; mutate: Mutate };
+export default function OpenApiManagementSection({ integration, connectionId, busy, mutate }: Props) {
+  const [operations, setOperations] = useState<IntegrationOpenApiOperation[]>([]);
+  const isOpenApi = integration.integration.configuration?.manual?.runtime === "openapi";
+  const refresh = async () => { if (!connectionId || !isOpenApi) return; const response = await integrationManagementApi.openApiOperations(integration.integration.id, connectionId); setOperations(response.items); };
+  useEffect(() => { let active = true; if (!connectionId || !isOpenApi) { setOperations([]); return; } void integrationManagementApi.openApiOperations(integration.integration.id, connectionId).then((response) => { if (active) setOperations(response.items); }).catch(() => { if (active) setOperations([]); }); return () => { active = false; }; }, [connectionId, integration.integration.id, isOpenApi]);
+  async function approve(operation: IntegrationOpenApiOperation) { const ids = operations.filter((item) => item.approved || item.operation_id === operation.operation_id).map((item) => item.operation_id); await mutate(`operation:${operation.operation_id}`, () => integrationManagementApi.approveOpenApiOperations(integration.integration.id, connectionId, ids), `${operation.operation_id} approved for this connection.`); await refresh(); }
+  async function test(operation: IntegrationOpenApiOperation) { if (operation.destructive) return; await mutate(`openapi-test:${operation.operation_id}`, () => integrationManagementApi.executeOpenApi(integration.integration.id, connectionId, operation.operation_id, {}, false), `${operation.operation_id} test completed.`); }
+  if (!isOpenApi) return null;
+  return <>{integration.management.sections.includes("operations") ? <section className="integration-subsection" aria-label="OpenAPI operations"><h4>Operations</h4>{operations.length ? <div className="table-wrap"><table className="responsive-record-table"><thead><tr><th scope="col">Operation</th><th scope="col">Method</th><th scope="col">Path</th><th scope="col">Approval</th></tr></thead><tbody>{operations.map((operation) => <tr key={operation.operation_id}><td data-label="Operation">{operation.operation_id}</td><td data-label="Method">{operation.method}</td><td data-label="Path" className="mono-text">{operation.path}</td><td data-label="Approval">{operation.approved ? (operation.destructive ? <span className="muted-text">Approved write</span> : <Button variant="secondary" type="button" disabled={busy} onClick={() => void test(operation)}>Test read</Button>) : <Button variant="secondary" type="button" disabled={busy} onClick={() => void approve(operation)}>{operation.destructive ? "Approve write" : "Approve"}</Button>}</td></tr>)}</tbody></table></div> : <p className="muted-text">No available operations available.</p>}</section> : null}{integration.availability.manual ? <><OpenApiResourceMappingsSection integrationId={integration.integration.id} connectionId={connectionId} integrationEnabled={integration.integration.enabled} busy={busy} operations={operations} mutate={mutate} /><OpenApiContractMappingsSection integrationId={integration.integration.id} connectionId={connectionId} integrationEnabled={integration.integration.enabled} connectionSelected={Boolean(connectionId)} busy={busy} operations={operations} mutate={mutate} /></> : null}</>;
+}

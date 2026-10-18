@@ -1,0 +1,858 @@
+/* Existing page selectors still use stable class names during U0. New components use local CSS Module classes. */
+.legacyDashboardRoot { min-width: 0; min-height: 100vh; }
+
+/* Compatibility stylesheet retained from styles/app.css; replaced as U1–U4 redesign their screens. */
+/* Tokens live in tokens.css — this file must not declare variables. */
+
+/* Dashboard v2 */
+
+:local(.legacyDashboardRoot) :global(*) {
+  box-sizing: border-box;
+}
+
+:local(.legacyDashboardRoot) :global(button), :local(.legacyDashboardRoot) :global(input), :local(.legacyDashboardRoot) :global(select), :local(.legacyDashboardRoot) :global(textarea) {
+  font: inherit;
+}
+
+:local(.legacyDashboardRoot) :global(button:not(.nav-link):not(.mobile-nav-item):not(.ui-button):not(.ui-icon-button):not(.ui-theme-toggle):not(.ui-nav-item):not(.ui-account-trigger):not(.ui-theme-option):not(.ui-overview-link):not([role="tab"]):not([data-u2-control])), :local(.legacyDashboardRoot) :global(.secondary-button) {
+  min-height: 38px;
+  border: 1px solid var(--color-text);
+  border-radius: 6px;
+  background: var(--color-text);
+  color: var(--color-accent-contrast);
+  padding: 0 14px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+:local(.legacyDashboardRoot) :global(button:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+:local(.legacyDashboardRoot) :global(a) {
+  color: var(--color-info);
+  text-decoration-thickness: 1px;
+}
+
+:local(.legacyDashboardRoot) :global(.action-group) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+:local(.legacyDashboardRoot) :global(.page-stack) {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+}
+
+:local(.legacyDashboardRoot) :global(.page-stack > *) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* A flex item's `min-width` is `auto`, which means it refuses to shrink below
+   its longest unbreakable word. Every header in this app is a flex row of
+   "copy on the left, control on the right", so one long id, hash, URL or model
+   name in the copy pushed the control out through the right edge of the panel.
+   Letting the copy shrink is what makes the ellipsis and wrap rules below
+   actually take effect. */
+
+:local(.legacyDashboardRoot) :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:local(.legacyDashboardRoot) :global(th), :local(.legacyDashboardRoot) :global(td) {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--color-surface);
+  text-align: start;
+  vertical-align: top;
+  font-size: 0.88rem;
+}
+
+:local(.legacyDashboardRoot) :global(th) {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  background: var(--color-surface);
+}
+
+:local(.legacyDashboardRoot) :global(tbody tr:last-child td) {
+  border-bottom: 0;
+}
+
+/* The dismiss control inherits the message tone rather than the button
+   palette, so a red banner does not sprout a neutral grey affordance. */
+
+:local(.legacyDashboardRoot) :global(.muted-text) {
+  color: var(--color-text-muted);
+}
+
+/* Library workspace: keep primary data visible and move rare configuration
+   behind compact disclosures instead of giving every control its own panel. */
+/* Pill rows, and only in the origins panel. This was `.runtime-config-section ul li`,
+   which at (0,1,2) also matched the capability rows and the freeze-impact bullets and
+   beat their own (0,1,0) layout rules — flattening a stacked row into one flex line
+   and stripping the markers off the impact list. */
+
+/* base.css puts a 44px touch floor (--target-min) on every button, input and select
+   in the console. That is right on a phone and oversized on a dense settings screen
+   driven by a mouse, so it is relaxed only where a fine pointer is present. Touch
+   targets on phones and tablets are untouched. */
+
+/* Universal Runtime control (Design system §7). One row per capability, showing the
+   configured state, the effective state and what a freeze would reach. */
+
+/* A segmented control, not three loose buttons. The base `button` rule fills every
+   button with --accent, so all three states used to render as identical solid pills
+   with the selected one marked by a 2px outline *in that same accent colour* — an
+   on/off signal nobody could see. Unselected states are explicitly quiet here and
+   the selected one carries the fill. */
+
+:local(.legacyDashboardRoot) :global(.search-input) { min-width: 260px; border: 1px solid var(--color-border, var(--color-border-strong)); border-radius: 10px; padding: .62rem .8rem; background: var(--color-surface-raised); }
+
+/* Fixed layout with a width for every column so the table always fits its panel
+ * (no off-screen action controls); the old 48/16/11/25 rules sized only 4 of the
+ * columns, and this table now renders 8. */ /* Page */ /* Type */ /* Source */ /* Tracking */  /* Views */ /* Last seen */ /* Signals */ /* Actions */
+
+/* ...and it is therefore the one transform the global reduced-motion rule in
+   base.css keeps but should not: the track colour already carries the state. */
+
+@media (max-width: 760px) {
+
+  :local(.legacyDashboardRoot) :global(.search-input), :local(.legacyDashboardRoot) :global(.table-toolbar__filters), :local(.legacyDashboardRoot) :global(.table-toolbar__filters select) { width: 100%; min-width: 0; }
+}
+
+/* Project-level Builder Agent */
+
+/* Persistent application logs */
+
+/* Site Script & Tracking Hub */
+
+/* Page-scoped AI Builder */
+/* Only the weight lives here: layout.css owns `.checkbox-row` geometry (grid,
+ * ``), so the display/flex declarations this rule used to carry
+ * were dead code that lost on every element. */
+
+/* Marketing Lab funnel operating system */
+/* Free-text steering box shared by the offer, assessment, and LP builders. */
+@keyframes lab-spin { to { transform: rotate(360deg); } }
+/* Respect a reduced-motion preference by slowing the rotation, not stopping it.
+   `animation: none` left a static ring that reads as broken rather than busy —
+   the one thing a loading indicator must never do is stop indicating. */
+/* Answer text takes the slack; the type picker and remove button stay at their
+   own width so the rows line up down the column. minmax(0,1fr) rather than 1fr
+   because a grid item's default min-width is its content, which lets a long
+   answer push the picker off the panel. */
+
+/* Organized Settings — U1 3.1: the group navigation is a horizontal band, so
+ * the layout is a single column and the content keeps the full width. */
+/* The band reuses `.experience-tabs`; this only seats it on the page. */
+/* Advanced drawers: closed by default, obviously openable, and clearly marked
+   as the place the diagnostics, legacy controls and runtime modules went. */
+
+/* Applied fixes & impact */
+
+/* Live page experiments */
+
+/* Auth: login screen + user management */
+:local(.legacyDashboardRoot) :global(.login-screen) { position: relative; display: flex; align-items: center; justify-content: center; min-height: 100dvh; overflow: hidden; padding: clamp(20px, 5vw, 64px); background: var(--color-bg);
+  gap: var(--space-2);
+}
+:local(.legacyDashboardRoot) :global(.login-screen::before) { content: none; }
+:local(.legacyDashboardRoot) :global(.login-card) { width: 100%; max-width: 420px; display: grid; gap: 18px; padding: clamp(26px, 5vw, 40px); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface-raised); box-shadow: var(--shadow-md); }
+:local(.legacyDashboardRoot) :global(.login-brand-lockup) { display: flex; align-items: center; gap: 12px; padding-bottom: 18px; border-bottom: 1px solid var(--color-border); }
+:local(.legacyDashboardRoot) :global(.login-brand-lockup > span:last-child) { display: grid; gap: 1px; }
+:local(.legacyDashboardRoot) :global(.login-brand-lockup strong) { color: var(--color-text); font-size: .96rem; letter-spacing: -.01em; }
+:local(.legacyDashboardRoot) :global(.login-brand-lockup small) { color: var(--color-text-muted); font-size: .72rem; }
+:local(.legacyDashboardRoot) :global(.login-card h1) { margin: 0; font-size: clamp(1.65rem, 4vw, 2rem); line-height: 1.08; letter-spacing: -.035em; }
+:local(.legacyDashboardRoot) :global(.login-subtitle) { margin: 0; color: var(--color-text-secondary); line-height: 1.55; }
+
+:local(.legacyDashboardRoot) :global(.mcp-oauth-screen) { align-items: flex-start; overflow-y: auto; }
+:local(.legacyDashboardRoot) :global(.mcp-oauth-card) { max-width: 760px; }
+:local(.legacyDashboardRoot) :global(.mcp-oauth-card > div:nth-child(2)) { display: grid; gap: 6px; }
+:local(.legacyDashboardRoot) :global(.mcp-oauth-error) { display: grid; gap: 10px; padding: 12px; border: 1px solid color-mix(in srgb, var(--color-danger) 35%, var(--color-border)); border-radius: 8px; background: color-mix(in srgb, var(--color-danger) 6%, var(--color-surface-raised)); }
+:local(.legacyDashboardRoot) :global(.mcp-oauth-error p) { margin: 0; color: var(--color-danger); line-height: 1.45; }
+@media (max-width: 560px) {
+  :local(.legacyDashboardRoot) :global(.mcp-oauth-card) { padding: 20px; }
+}
+
+/* Proactive alerts */
+/* The export's embed toggle. The consequence sits under the label rather than in
+   a tooltip: choosing wrong is only visible after the page is already pasted
+   into the store. */
+/* Same revolution as .lab-spinner and .ui-spinner — three indicators for one
+   idea should not run at three different speeds (this was 1s, they were .7s). */
+@keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Chat Timeline */
+
+/* Topbar breadcrumb + command palette trigger */
+
+/* Command palette */
+
+/* Marketing Lab phase stepper */
+
+/* --- Unified LP Builder: experience picker (plan §3) --- */
+/* Choosing an experience is the required first step of every LP — it is a
+   prominent panel, never a collapsed/optional add-on (plan §1, §3.1). */
+/* Circled "1" matches the .lp-stepper number circles so the experience step +
+   the config steps below read as one continuous 1-2-3-4 sequence. */
+/* Override the global button:hover fill (which would tint the card and hide its dark text). */
+/* Theme picker — the visual axis, styled as a lighter sibling of the experience
+   cards so the funnel choice above stays the primary one on the page. */
+
+/* Public skin discovery: intentionally independent of the authenticated console shell. */
+/* Versioned Experience Studio */
+
+/* Assistant configuration is intentionally editorial: policy controls are
+   grouped by the decision they affect, rather than rendered as a continuous
+   wall of generic form fields. *//* Compact padding: the heading row already carries the rule title and toggle, so full card padding would double its height. */
+/* High-clarity controls for the Experience authoring flow. Scoped so product
+   inputs elsewhere retain their own density and affordances. */
+/* Measure and Retain -------------------------------------------------------
+   These destinations combine dense reports with small authoring controls. They
+   need content-sized values and independent action rows; fixed-width badges and
+   implicit grid placement were pushing real copy outside the panel. */
+/* Customer Studio scope read-out. The hero panel that used to carry it — an
+   eyebrow, a sentence of chrome and a store selector above every destination —
+   is gone; the scope now rides in the task bar of the task it applies to. */
+
+/* Both drawers on the Experiences screens are gone: the workspace-wide one was
+   a hidden duplicate of the stage row, and the per-Experience one held ordinary
+   next steps that had no business being collapsed. This keeps the rule for any
+   drawer that remains under `.experience-detail`. */
+
+/* A warning and the way out of it, on one line until the line runs out. */
+
+/* One row of stages, then cards. The row that used to sit under this one — up
+   to four feature tabs filtered by the active group — and the `PhaseProgress`
+   read-out above it are both gone: a stage now shows what its tasks *are*
+   rather than abbreviating them into tab labels. */
+
+/* A mode switch sits above the tool it swaps, not inside the page rhythm. */
+
+/* Each row has up to six children: handle, Action, Label, Message, the
+ * Assessment picker (only for targetable actions), then the move/delete
+ * controls. The grid must reserve a column for every one of them, and pin the
+ * controls to the far-right column explicitly — with a five-column track the
+ * sixth child (controls) was auto-placed onto a second row at column one,
+ * which is what made rows read as disjoint fragments of text. */
+
+/* Confirmation dialogs reuse the modal shell; only the measure and the action
+   row differ, because a question is narrower than a form. */
+:local(.legacyDashboardRoot) :global(.confirm-dialog) {
+  width: min(30rem, 100%);
+  display: grid;
+  gap: 10px;
+}
+
+:local(.legacyDashboardRoot) :global(.confirm-dialog h2) {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+:local(.legacyDashboardRoot) :global(.confirm-dialog p) {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+:local(.legacyDashboardRoot) :global(.confirm-dialog__actions) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+/* Capability toggles are a short code label and a box, not a form field. The
+   generic .settings-grid reserves a 220px track per cell, which fits one column
+   in the settings column and stacked fourteen capabilities into 785px of almost
+   entirely empty row. */
+
+/* Store problems on To do. Same strip as the alert list beside it, plus a
+   direct route to the screen that fixes each one — the point of surfacing them
+   here is that nobody should have to go looking for the corrective screen. */
+
+/* Assessment version list — the column is 260px wide and every string in it is
+   machine-generated, so this is where the flex-shrink trap shows first. */
+
+/* The pill states the status and is three words at most: it should never be
+   the thing that gets squeezed. */
+
+/* Store health on To do: the note carries the state the list cannot — nothing
+   connected, a partial read, or a failed one. */
+
+/* Overview slots fail one at a time. A slot in its error state keeps the panel
+   frame so the row does not reflow around the failure. */
+
+/* Integration management is a high-density operator surface. Keep actions
+   separate from record data so they remain readable at every viewport. */
+
+/* The ≤900px stacking is owned by the shared `.responsive-record-table`
+ * primitive (layout.css) — this panel used to carry its own copy. Only the
+ * ≤560px refinement below is panel-specific: it re-grids the two action
+ * clusters into two columns, which the primitive deliberately does not do. */
+
+/* Integration management — the rules this panel was written against ---------
+ *
+ * `IntegrationManagementPanel.tsx` ships seven class names that no stylesheet
+ * ever defined: `.button-row`, `.callout`, `.callout--warning`,
+ * `.form-grid__wide`, `.integration-card__eyebrow`, `.json-preview` and
+ * `.modal-panel`. Unstyled, each falls back to plain block/inline flow — which
+ * is why the action clusters ran together with no gap, the warnings had no box,
+ * the diagnostics JSON pushed the page sideways, and the eyebrow was
+ * indistinguishable from the name beside it. */
+
+/* Six of these hold two to five buttons. With no rule they were inline boxes
+   touching edge to edge, and on a narrow panel they overflowed instead of
+   wrapping — the single most visible defect on the page. */
+
+/* A header's action cluster stays out of the copy's way and never squeezes it. */
+
+/* The type/source label above an integration's name. It has to read as a label
+   rather than as the first words of the title. */
+
+/* "Needs attention", "Runtime unavailable", "Lifecycle details" — a warning
+   with no box is just more paragraphs. */
+
+/* A field that needs the full width of a two-column form — the OpenAPI
+   document and the payload mapping are pasted blobs, not one-line inputs. */
+
+/* Machine output. It is read, not scanned, and one long line must scroll inside
+   its own box rather than widening the page. */
+
+/* The bind-resource dialog. `.modal-backdrop` centres it; without a width and a
+   scroll ceiling a long resource list grew past the viewport with no way back. */
+
+/* Title above subtitle, never beside it — these are two facts about the card,
+   not one sentence. */
+
+/* The headline number. Tabular figures so a score does not jitter as it
+   refreshes. */
+
+/* One setup requirement: what it is, what state it is in, what to do. */
+
+/* Canonical Assessment draft preview. It is intentionally a small shopper
+   card, not a second result renderer: effects and product selection remain
+   server-evaluated. */
+
+/* Compatibility stylesheet retained from styles/system.css; replaced as U1–U4 redesign their screens. */
+/* Lynewright UI system: shared shell, hierarchy, density, and responsive rules.
+ * Tokens live in tokens.css — this file must not declare variables. */
+
+:local(.legacyDashboardRoot) :global(button), :local(.legacyDashboardRoot) :global(input), :local(.legacyDashboardRoot) :global(select), :local(.legacyDashboardRoot) :global(textarea) {
+  font-size: 0.875rem;
+}
+
+:local(.legacyDashboardRoot) :global(button:not(.nav-link):not(.mobile-nav-item):not(.ui-button):not(.ui-icon-button):not(.ui-theme-toggle):not(.ui-nav-item):not(.ui-account-trigger):not(.ui-theme-option):not(.ui-overview-link):not(.integration-tab):not([role="tab"])), :local(.legacyDashboardRoot) :global(.secondary-button) {
+  min-height: 40px;
+  border-radius: 8px;
+  padding-inline: 16px;
+  font-weight: 700;
+  transition:
+    border-color var(--duration-fast) ease,
+    background var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--motion-press) var(--ease-standard);
+}
+
+/* Press feedback — the only motion a pressable control earns here. It exists
+ * for the fraction of a second the pointer is down, so it costs an operator
+ * nothing at rest, and it is the one signal that survives a slow network: the
+ * control answered even if the request has not.
+ *
+ * Nav items are links wearing a <button>, and a link does not depress, so they
+ * opt out. Anything with its own `transition` (the picker cards, the agent-mode
+ * options, the sidebar theme toggle) must list `transform` itself — a class
+ * shorthand overrides the one above. */
+:local(.legacyDashboardRoot) :global(button:not(.nav-item, .ui-nav-item, .nav-link, .mobile-nav-item):active:not(:disabled)), :local(.legacyDashboardRoot) :global(.secondary-button:active:not(:disabled)) {
+  transform: scale(0.97);
+}
+
+:local(.legacyDashboardRoot) :global(button:focus-visible), :local(.legacyDashboardRoot) :global(a:focus-visible), :local(.legacyDashboardRoot) :global(input:focus-visible), :local(.legacyDashboardRoot) :global(select:focus-visible), :local(.legacyDashboardRoot) :global(textarea:focus-visible) {
+  outline: 0;
+  box-shadow: var(--shadow-focus-ring);
+}
+
+:local(.legacyDashboardRoot) :global(input), :local(.legacyDashboardRoot) :global(select), :local(.legacyDashboardRoot) :global(textarea), :local(.legacyDashboardRoot) :global(.search-input), :local(.legacyDashboardRoot) :global(.table-toolbar select), :local(.legacyDashboardRoot) :global(.workspace-context-bar select) {
+  border-color: var(--color-border-strong);
+  border-radius: 8px;
+  color: var(--color-text);
+}
+
+:local(.legacyDashboardRoot) :global(.page-stack), :local(.legacyDashboardRoot) :global(.action-band), :local(.legacyDashboardRoot) :global(.detail-header), :local(.legacyDashboardRoot) :global(.panel), :local(.legacyDashboardRoot) :global(.bottleneck-alert), :local(.legacyDashboardRoot) :global(.dashboard-panel), :local(.legacyDashboardRoot) :global(.selected-page-diagnosis), :local(.legacyDashboardRoot) :global(.workspace-context-bar), :local(.legacyDashboardRoot) :global(.workspace-detail) {
+  border-color: var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+}
+
+:local(.legacyDashboardRoot) :global(.panel p), :local(.legacyDashboardRoot) :global(.detail-header p), :local(.legacyDashboardRoot) :global(.action-band p), :local(.legacyDashboardRoot) :global(.panel-header p), :local(.legacyDashboardRoot) :global(.muted-text) {
+  color: var(--color-text-muted);
+}
+
+/* Dashboard: one status band, one KPI band, one analytics frame. */
+
+/* Dense screens keep their content inside deliberate, scrollable boundaries. */
+:local(.legacyDashboardRoot) :global(.telegram-settings-stack) {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-6);
+}
+:local(.legacyDashboardRoot) :global(.account-page),
+:local(.legacyDashboardRoot) :global(.managed-users-page) {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: var(--space-6);
+}
+:local(.legacyDashboardRoot) :global(.account-section),
+:local(.legacyDashboardRoot) :global(.managed-users-section) { min-width: 0; }
+:local(.legacyDashboardRoot) :global(.account-actions),
+:local(.legacyDashboardRoot) :global(.managed-user-actions),
+:local(.legacyDashboardRoot) :global(.dialog-actions) {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+:local(.legacyDashboardRoot) :global(.managed-user-email) {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+:local(.legacyDashboardRoot) :global(.managed-user-email > strong) { overflow-wrap: anywhere; }
+:local(.legacyDashboardRoot) :global(.managed-user-actions .ui-button--sm) { white-space: nowrap; }
+
+/* Active category sits on the light --action-secondary chip in both themes, so
+ * its subtitle needs a dark ink rather than the muted grey used when inactive. */
+
+@media (max-width: 760px) {
+
+  :local(.legacyDashboardRoot) :global(.search-input) {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* The global prefers-reduced-motion block that used to sit here was a duplicate
+ * of base.css's, which now owns it outright. */
+
+/* Agent OS control plane */
+
+/* Status chips are owned by console.css, which maps every status to a tone. */
+
+/* Compatibility stylesheet retained from styles/console.css; replaced as U1–U4 redesign their screens. */
+/*
+ * UI correction layer, loaded after app.css and system.css.
+ *
+ * Owns the semantic status system, the Agent OS layout classes that replaced
+ * that page's inline styles, and the containment fixes that keep controls a
+ * consistent size and content inside its card. Everything here is built from
+ * the tokens in system.css — no new brand colours.
+ */
+
+/* Semantic tone tokens moved to tokens.css (the single :root). */
+
+/* ------------------------------------------------------- stacked grids
+ * These grids are vertical stacks. Their rows are auto-sized, so whenever a
+ * grid sits in a stretched container (a two-column row sizes both children to
+ * the taller one) `align-content: stretch` inflated every row to fill the
+ * leftover height — headings rendered ~200px tall and submit buttons became
+ * 195px slabs. Rows must keep their natural height and let slack collect at
+ * the end of the stack.
+ */
+:local(.legacyDashboardRoot) :global(.settings-form), :local(.legacyDashboardRoot) :global(.agent-field-stack), :local(.legacyDashboardRoot) :global(.agent-check-stack), :local(.legacyDashboardRoot) :global(.agent-checkbox-grid), :local(.legacyDashboardRoot) :global(.agent-subpanel), :local(.legacyDashboardRoot) :global(.agent-command-main), :local(.legacyDashboardRoot) :global(.agent-command-aside), :local(.legacyDashboardRoot) :global(.agent-command-aside section), :local(.legacyDashboardRoot) :global(.agent-policy-group), :local(.legacyDashboardRoot) :global(.agent-policy-stack), :local(.legacyDashboardRoot) :global(.connection-card), :local(.legacyDashboardRoot) :global(.console-empty) {
+  align-content: start;
+}
+
+/*
+ * A form's submit is an action, not a banner: it sizes to its label, not to
+ * its container. Column stacks stretch their children by default, which turned
+ * "Connect site" into a 951px slab and "Save hook" into a 438px one. Grid
+ * stacks are corrected on the inline axis, flex columns on the cross axis.
+ */
+
+/* Nothing in these layouts may set a width floor that bursts its card. */
+
+/* ------------------------------------------------------- section actions
+ * `.section-heading` is a flex row holding prose and an action. The action
+ * could shrink, so a long description squeezed it until its label wrapped onto
+ * two lines and the button grew to 43px against the 40px used everywhere else.
+ * The prose yields; the control keeps its label on one line.
+ */
+
+:local(.legacyDashboardRoot) :global(.section-heading > div:first-child), :local(.legacyDashboardRoot) :global(.action-band > div:first-child) {
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- status */
+
+/* A dot carries state at a glance for anyone who reads shape before colour. */
+
+/* In-flight work is the one state that earns motion. */
+
+@keyframes pill-pulse {
+  50% { opacity: 0.25; }
+}
+
+/* Slowed rather than stopped. Freezing it does lose information: every other
+ * tone renders the same static dot, so a stopped pulse leaves "in flight right
+ * now" carried by hue alone. And a pure opacity fade is exactly the kind of
+ * motion a reduced-motion preference is meant to keep — nothing moves, nothing
+ * resizes. */
+
+/* Digits that stack in columns line up. */
+
+/* ------------------------------------------------------ improvement queue
+ * The action column was a hard 140px, but its button labels arrive from the
+ * API and can be any length — "Regenerate ads with evidence" shattered into
+ * three lines of 11.5px text. The column now flexes, and a label that still
+ * needs two lines breaks evenly instead of stranding one word.
+ */
+
+/* ------------------------------------------------------------ empty state */
+
+/* --------------------------------------------------------- agent os shell */
+
+/* A quiet inset panel: grouped controls that support the main objective. */
+
+/*
+ * Grid and flex children default to `min-width: auto`, so an input's intrinsic
+ * width becomes a floor and the track refuses to shrink — two budget fields in
+ * a 331px column overflowed their card by 61px. The aside is not a
+ * `.settings-form`, so it never inherited that package's full-width inputs.
+ */
+
+/* -------------------------------------------------------- agent policies */
+
+/*
+ * Eleven columns cannot survive a narrow viewport, and a 1180px horizontal
+ * scroll hides the actions. Below 900px each row becomes a labelled card.
+ */
+
+/* Compatibility stylesheet retained from styles/primitives.css; replaced as U1–U4 redesign their screens. */
+:local(.legacyDashboardRoot) :global(.ui-button), :local(.legacyDashboardRoot) :global(.ui-icon-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--target-min);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding-inline: var(--space-4);
+  font-weight: 750;
+  cursor: pointer;
+}
+:local(.legacyDashboardRoot) :global(.ui-button:disabled), :local(.legacyDashboardRoot) :global(.ui-icon-button:disabled) { cursor: not-allowed; opacity: 0.55; }
+:local(.legacyDashboardRoot) :global(.ui-button--primary) { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-contrast); box-shadow: none; }
+:local(.legacyDashboardRoot) :global(.ui-button--primary:hover:not(:disabled)) { border-color: var(--color-accent-hover); background: var(--color-accent-hover); }
+:local(.legacyDashboardRoot) :global(.ui-button--secondary) { border-color: var(--color-border-strong); background: var(--color-surface-raised); color: var(--color-text); }
+:local(.legacyDashboardRoot) :global(.ui-button--ghost), :local(.legacyDashboardRoot) :global(.ui-button--quiet) { border-color: transparent; background: transparent; color: var(--color-text-secondary); }
+:local(.legacyDashboardRoot) :global(.ui-button--ghost:hover:not(:disabled)), :local(.legacyDashboardRoot) :global(.ui-button--quiet:hover:not(:disabled)) { background: var(--color-surface); }
+:local(.legacyDashboardRoot) :global(.ui-button--danger) { border-color: var(--color-danger); background: transparent; color: var(--color-danger); }
+:local(.legacyDashboardRoot) :global(.ui-button--danger:hover:not(:disabled)) { background: var(--color-danger-bg); }
+:local(.legacyDashboardRoot) :global(.ui-button--danger-confirm) { border-color: var(--color-danger); background: var(--color-danger); color: var(--color-accent-contrast); }
+:local(.legacyDashboardRoot) :global(.ui-button--sm) { min-height: 2rem; padding-inline: var(--space-3); font-size: var(--font-size-13); }
+:local(.legacyDashboardRoot) :global(.ui-button--md) { min-height: 2.5rem; }
+:local(.legacyDashboardRoot) :global(.ui-icon-button) { width: var(--target-min); min-height: var(--target-min); padding: 0; border-color: transparent; background: transparent; color: var(--color-text-secondary); }
+:local(.legacyDashboardRoot) :global(.ui-icon-button:hover:not(:disabled)) { background: var(--color-surface); color: var(--color-text); }
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+/* Slowed, never stopped: an indeterminate spinner that stops rotating reads as
+ * a broken ring, not as work in progress. */
+
+/* An action that reads as part of the row or sentence it sits in: the "Remove"
+   and "Delete" affordances inside list items, and the navigable stage label in
+   the experience readiness list. Used in four places since those screens were
+   written and defined in none of them, so all four have been rendering as
+   default browser buttons — chrome boxes sitting in the middle of running text.
+   --accent-text rather than --action-primary because it is the accent lightened
+   for dark surfaces, where the raw brand colour does not clear AA. */
+
+/* A panel nested inside a panel: the merge result on Discovered pages and the
+   custom-intelligence groups. Used in both places and declared in neither, so
+   the merge result rendered as a bare unstyled section. Matches
+   .custom-intelligence-group, which is the same idea under a page-specific
+   name and was the only one of the two that had a rule. */
+
+/* Compatibility stylesheet retained from styles/layout.css; replaced as U1–U4 redesign their screens. */
+
+/* The collapse control used to hang half outside the sidebar
+   (`inset-inline-end: -0.75rem` plus a 50% translate). The sidebar sets
+   `overflow-y: auto`, and CSS will not let one axis scroll while the other
+   stays `visible` — so the overhang became horizontal scrollable overflow and
+   the sidebar grew its own horizontal scrollbar along the bottom of the window.
+   Sitting flush inside the edge, it scrolls nothing. */
+
+/* Collapsed there is no room beside the mark for a 44px target, so the control
+   stacks under it rather than overlapping the logo. */
+
+/* Form controls: one calm, tactile surface across Customer Studio. The old
+ * controls inherited border/radius values from several CSS layers, so fields
+ * beside one another could look like different components. */
+
+/* Classify the few non-standard rows rather than letting child count decide
+ * their layout accidentally. */
+
+/* Action containers are a separate layout decision from form fields. */
+:local(.legacyDashboardRoot) :global(.studio-actions), :local(.legacyDashboardRoot) :global(.action-group), :local(.legacyDashboardRoot) :global(.inline-actions), :local(.legacyDashboardRoot) :global(.table-actions) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* Form controls -----------------------------------------------------------
+ * Forms are read far more often than they are submitted. Give every field a
+ * stable vertical rhythm, keep field text aligned to the control it describes,
+ * and reserve the full touch target for checkbox labels rather than leaving a
+ * small, hard-to-hit native box floating in a dense settings panel.
+ */
+
+/* Give labels enough breathing room to read as a name for the control below,
+ * rather than as part of the field value. The same rhythm applies across the
+ * older settings, ingestion, Lab, provider, and experiment form families. */
+
+/* Action rows are a new decision after the fields above them. Keep their
+ * spacing consistent and let label-based actions (such as file pickers) use
+ * the same shape as a normal button. */
+
+:local(.legacyDashboardRoot) :global(.action-group), :local(.legacyDashboardRoot) :global(.inline-actions) { gap: var(--space-2); }
+
+/* Operator records have variable-length action sets (Telegram connections
+ * can expose five actions while a run may expose four). The generic provider
+ * row reserves four grid columns, which squeezes these controls into an
+ * unreadable strip. Keep the record readable first, then place its actions in
+ * a wrapped row below the description. */
+
+/* U1: the `` armor this primitive used to need is gone with the
+ * per-panel copies it was fighting — no author rule sets these properties on
+ * `.checkbox-row` anymore, so plain cascade order is enough. */
+
+/* The native switch checkbox must remain in the label for keyboard and screen
+ * reader access, but it must not inherit the full-width input rule used by
+ * settings forms. That rule previously made an invisible checkbox span the
+ * viewport and overlap unrelated fields. */
+/* The thumb travels toward inline-end: mirrored in RTL so it still moves
+ * away from its resting edge. */
+/* Dismissed is deliberately the quietest tone of the four: it is the one state
+ * that says "stop showing me this", so it must not read as a result. */
+
+/* Queue status filter. This is the shared SectionTabs primitive (it already owns
+ * roving tabindex and the count pill) — these rules only seat it inside the
+ * panel header, so the tab shape stays identical to every other tab strip. */
+
+/* Outcomes — the measurement half of evidence → action → measurement. */
+
+/* Wireframe parity for the deeper product surfaces. The static reference only
+ * draws one state for Studio and Experiences, but every tab belongs to the
+ * same compact, evidence-first system: quiet page headers, indigo selection,
+ * white work surfaces, and no route-specific black/teal navigation language. */
+
+/* Build → Experience → Promote → Measure. The group label is what turns a row
+   of tabs into a stated order of work; without it the grouping is invisible and
+   the navigation reads as the flat toolbox it replaced. */
+
+/* `min-width: 0` throughout. A grid or flex item defaults to `min-width: auto`,
+   which refuses to shrink below its content — so on a 375px phone this editor
+   rendered a 367px card inside a 265px column and pushed the whole document
+   48px wider than the viewport. The Assessment editor is the destination
+   Customer Studio opens on, so that was the app's first screen on mobile. */
+
+@media (max-width: 760px) {
+
+  :local(.legacyDashboardRoot) :global(.mobile-nav-item) {
+    display: flex;
+    min-width: 0;
+    min-height: 3.75rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+}
+
+/* Collapsed questions still have to be identifiable, so the disclosure row
+   carries the type, option count and required flag rather than a bare chevron. */
+/* The body is a grid in its own right: the question's fields used to be direct
+   children of the question card and inherited its gap. */
+
+/* U1: UX foundation — repaired shared primitives ---------------------------
+ *
+ * Rule: when a panel needs different spacing, the primitive is wrong for
+ * everyone — fix the primitive. Panels extend these; they never redefine them.
+ * A local override is permitted only for a genuinely unique layout, and then
+ * it carries a one-line comment saying why. New `` on a shared
+ * primitive is a review event.
+ *
+ * This block lives in layout.css (the last stylesheet imported) so the
+ * repaired primitives win over the per-panel copies in app.css on equal
+ * specificity — which is what lets those copies be deleted.
+ */
+
+/* 1.1 Action clusters. `.button-row` (app.css) is the one action-cluster
+ * primitive. Table-cell variant: action clusters inside `<td>` get the same
+ * gap and wrap behaviour without a wrapper element in every row. */
+
+/* Spacing floor: adjacent controls that were never wrapped in a cluster still
+ * read as separate controls rather than one fused strip. Scoped to table
+ * cells — the one place buttons routinely sit unwrapped. Segmented and flush
+ * contexts (`.range-control`, `.runtime-capability-row__states`) intentionally
+ * keep their own tight spacing and are untouched. */
+
+/* `.compact-actions` was layout-less (its only base rule was
+ * `flex-wrap: nowrap`, which does nothing without a display mode), so all nine
+ * of its users rendered fused inline buttons except the one panel that
+ * redefined it from scratch. It is an action cluster and shares the
+ * `.button-row` behaviour. */
+
+/* `.checkbox-row--card` is the card treatment five panels each reinvented
+ * (assistant, activation, experience-builder, recommendation-rules,
+ * activation-simulator): bordered option cards whose checked state tints with
+ * the action colour. Panels opt in with the class instead of redeclaring it. */
+
+/* `.placement-conflict-list` shipped with no rule at all: rows of name,
+ * priority field and Archive button rendered as fused inline flow. It is a
+ * record list with row actions — a grid list of flex rows. */
+
+/* 1.2 Text truncation — the missing primitive. Long remote descriptions,
+ * capability text and error detail clamp visually to `--clamp-lines` (default
+ * 2); the full string stays in the DOM so screen readers and title tooltips
+ * keep reading it. Never clamp with `text-overflow` on content assistive
+ * technology needs in full without also exposing the whole value. */
+
+/* The disclosure owns the state: a wrapping `details[open]` or an explicit
+ * `data-expanded="true"` releases the clamp. The toggle button beside it is
+ * what makes the hidden lines reachable by sighted readers. */
+
+/* Single-line identifiers, URLs and names in dense rows. Pair with `title`. */
+
+/* 1.3 Section rhythm. One rule at every nesting level: the internal gap is at
+ * least one step smaller than the separation between siblings. The old
+ * `.integration-subsection` paired an internal `space-3` gap with a `space-5`
+ * padding against its own top border — close enough that content read as
+ * fused to the border. Separation is now two steps above the internal gap. */
+
+/* A header's supporting copy keeps its own spacing from the control above it,
+ * not the section's default gap. */
+
+/* 1.4 Required fields get a visible indicator, not only the HTML attribute.
+ * Labels that wrap their text in a `<span>` (the provider-form pattern) are
+ * marked automatically; bare-text labels should adopt the span so the marker
+ * lands on the name rather than after the control. */
+
+/* Field descriptions live beside the label (referenced via `aria-describedby`),
+ * never inside it: folded into the label they become part of the control's
+ * accessible name app-wide. The wrapper keeps the pair on one grid row. */
+
+/* 1.5 Responsive tables stack into label/value cards below 900px. The shared
+ * `.responsive-record-table` primitive owns that behaviour (defined above);
+ * panels use it with `data-label` cells rather than writing their own
+ * breakpoint. */
+
+/* 3.2 Raw output (JSON traces, diagnostics, schema) hides behind a disclosure —
+ * read on request, never inline by default. The summary keeps the native
+ * marker: it is the affordance that says "there is more". */
+
+/* 3.3 Consistent state vocabulary. `PageState` (components/ui/PageState.tsx)
+ * is the one loading / empty / error / offline / permission primitive — every
+ * async surface renders one of its kinds with what failed and a retry action,
+ * so a screen is never silently blank and live regions announce consistently
+ * (`alert` for error/offline, `status` otherwise). The skeleton below is for
+ * known-shape content while it loads; unknown-shape content uses
+ * `kind="loading"` instead of inventing a second spinner. */
+
+@keyframes ui-skeleton-shimmer { to { background-position: -200% 0; } }
+
+/* Slowed, never stopped: a frozen shimmer reads as a broken bar. */
+
+/* Compatibility stylesheet retained from styles/production.css; replaced as U1–U4 redesign their screens. */
+
+/* Dashboard shell navigation is not an action button. */
+:local(.legacyDashboardRoot) :global(button.mobile-nav-item) {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+/* U0b: shared primitives keep their own variant palette above the dashboard compatibility layer. */
+:local(.legacyDashboardRoot) :global(.ui-button) { font-weight: 650; }
+:local(.legacyDashboardRoot) :global(.ui-button--primary) { background: var(--color-accent); color: var(--color-accent-contrast); }
+:local(.legacyDashboardRoot) :global(.ui-button--secondary) { border-color: var(--color-border-strong); background: var(--color-surface-raised); color: var(--color-text); }
+:local(.legacyDashboardRoot) :global(.ui-button--ghost), :local(.legacyDashboardRoot) :global(.ui-button--quiet) { background: transparent; color: var(--color-text-secondary); }
+:local(.legacyDashboardRoot) :global(.ui-button--danger) { border-color: var(--color-danger); background: transparent; color: var(--color-danger); }
+:local(.legacyDashboardRoot) :global(.ui-button--danger-confirm) { border-color: var(--color-danger); background: var(--color-danger); color: var(--color-accent-contrast); }
+:local(.legacyDashboardRoot) :global(.ui-button--sm) { min-height: 2rem; padding-inline: var(--space-3); font-size: var(--font-size-13); }
+:local(.legacyDashboardRoot) :global(.ui-button--md) { min-height: 2.5rem; }
+:local(.legacyDashboardRoot) :global(.ui-icon-button) { min-height: var(--target-min); border-color: transparent; background: transparent; color: var(--color-text-secondary); }
+:local(.legacyDashboardRoot) :global(.ui-icon-button:hover:not(:disabled)) { background: var(--color-surface); color: var(--color-text); }
+:local(.legacyDashboardRoot) :global(.signed-list-card-trigger.ui-button) {
+  display: grid;
+  width: 100%;
+  min-height: 0;
+  align-items: initial;
+  justify-content: initial;
+  gap: var(--space-3);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 400;
+  text-align: start;
+}
+:local(.legacyDashboardRoot) :global([role="tab"]) { flex: 0 0 auto; min-height: 2.75rem; border: 0; border-block-end: 2px solid transparent; border-radius: 0; background: transparent; color: var(--color-text-muted); padding: 0 var(--space-1); white-space: nowrap; }
+:local(.legacyDashboardRoot) :global([role="tab"]:hover:not(:disabled)) { background: transparent; color: var(--color-text); }
+:local(.legacyDashboardRoot) :global([role="tab"][aria-selected="true"]) { border-block-end-color: var(--color-accent); background: transparent; color: var(--color-text); font-weight: 650; }
+
+:local(.legacyDashboardRoot) :global(.settings-provider-name) {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+:local(.legacyDashboardRoot) :global(.settings-provider-name small) {
+  display: block;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* The integration operation tables keep their responsive row-card treatment. */
+:local(.legacyDashboardRoot) :global(.table-wrap) {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface-raised);
+}
+:local(.legacyDashboardRoot) :global(.integration-table-wrap) { min-width: 0; }
+:local(.legacyDashboardRoot) :global(.integration-record-table) { width: 100%; min-width: 52rem; }
+:local(.legacyDashboardRoot) :global(.integration-record-table th:last-child), :local(.legacyDashboardRoot) :global(.integration-record-table td:last-child) { min-width: 15rem; }
+:local(.legacyDashboardRoot) :global(.integration-record-table td) { vertical-align: top; }
+:local(.legacyDashboardRoot) :global(.integration-record-table td > strong), :local(.legacyDashboardRoot) :global(.integration-record-table td > small) { display: block; }
+:local(.legacyDashboardRoot) :global(.integration-record-table td > small) { margin-block-start: var(--space-1); overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  :local(.legacyDashboardRoot) :global(.table-wrap:has(.responsive-record-table)) { overflow: visible; border: 0; }
+  :local(.legacyDashboardRoot) :global(.responsive-record-table), :local(.legacyDashboardRoot) :global(.responsive-record-table tbody) { display: block; min-width: 0; }
+  :local(.legacyDashboardRoot) :global(.responsive-record-table thead) { display: none; }
+  :local(.legacyDashboardRoot) :global(.responsive-record-table tr) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-raised); }
+  :local(.legacyDashboardRoot) :global(.responsive-record-table tr + tr) { margin-top: var(--space-3); }
+  :local(.legacyDashboardRoot) :global(.responsive-record-table td) { display: block; min-width: 0; padding: 0; border: 0; }
+  :local(.legacyDashboardRoot) :global(.responsive-record-table td::before) { content: attr(data-label); display: block; margin-bottom: var(--space-1); color: var(--color-text-muted); font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  :local(.legacyDashboardRoot) :global(.responsive-record-table td:first-child), :local(.legacyDashboardRoot) :global(.responsive-record-table td:last-child), :local(.legacyDashboardRoot) :global(.responsive-record-table td.empty-cell) { grid-column: 1 / -1; }
+}

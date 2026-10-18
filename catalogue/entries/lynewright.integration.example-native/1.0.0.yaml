@@ -1,0 +1,38 @@
+id: lynewright.integration.example-native
+version: 1.0.0
+kind: package
+name: Native Python Example
+summary: A trusted-code starter with an async operation and managed image output.
+description: >-
+  For Python code you trust, this starter declares a setting, an asynchronous
+  operation, and a managed image output. Its declaration is packaged as
+  lynewright-manifest.json and read by the API without importing the package;
+  unless trusted in-process execution is enabled, provider code loads in the
+  runner. Its tests keep the package invisible while unlisted, then allowlist
+  it and run its async operation through a production line.
+licence: Apache-2.0
+source: https://catalogue.example.invalid/artifacts/lynewright_integration_example-1.0.0-py3-none-any.whl
+sha256: d005f2f22ef850aab2c264ae991cdc9800adbfaa862ca252b454d93c3c6a0e06
+lynewright_version: ^0.1.0
+permissions:
+  capabilities:
+  - media:create
+  egress: none
+  media: write
+  credential_refs: []
+limits:
+  cpus: 1
+  memory_mb: 256
+  pids: 64
+  timeout_seconds: 60
+review:
+  reviewer: Lynewright maintainers
+  date: '2026-10-16'
+  catalogue_commit: 703e42c83d01dc96f7b967ff1f205a59c71cb53f
+build:
+  template_repo: https://github.com/lynewright/lynewright-integration-template
+  template_commit: d6e17578deee53c6c885e2ab3d8840985999f021
+  template_path: native
+  source_snapshot: sources/template/native
+  method: build deterministic pure-Python wheel
+  artifact_filename: lynewright_integration_example-1.0.0-py3-none-any.whl

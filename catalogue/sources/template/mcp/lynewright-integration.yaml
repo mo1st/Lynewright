@@ -1,0 +1,11 @@
+format: lynewright-integration/1
+id: lynewright.integration.template-mcp
+name: MCP Example
+version: 1.0.0
+lynewright_version: ^0.1.0
+runtime_kind: mcp
+endpoint_url: http://127.0.0.1:8000
+credentials: []
+operations:
+  - tool_name: echo
+    description: Return the supplied text as structured content.

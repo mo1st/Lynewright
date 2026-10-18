@@ -1,0 +1,35 @@
+id: lynewright.integration.template-mcp
+version: 1.0.0
+kind: file
+name: MCP Example
+summary: A read-only echo tool over Streamable HTTP.
+description: >-
+  This starter exposes one read-only echo tool over Streamable HTTP. Its test
+  starts the local MCP server, imports the declaration, discovers and approves
+  the tool, maps it to the testkit contract, then runs it through a production
+  line. Replace the example tool and integration declaration while keeping
+  approval explicit.
+licence: Apache-2.0
+source: https://catalogue.example.invalid/artifacts/lynewright.integration.template-mcp-1.0.0.yaml
+sha256: a6f16b8c76ac0decab3e8c284d2b9dc0d841a47c83722db2c98f43957ecdc0e5
+requires_operator_setup:
+- Start the MCP example service, map it with LYNEWRIGHT_INTERNAL_ENDPOINT__<REF>,
+  and enter <REF> when installing.
+lynewright_version: ^0.1.0
+permissions:
+  capabilities:
+  - network:use
+  egress: none
+  media: none
+  credential_refs: []
+review:
+  reviewer: Lynewright maintainers
+  date: '2026-10-16'
+  catalogue_commit: 703e42c83d01dc96f7b967ff1f205a59c71cb53f
+build:
+  template_repo: https://github.com/lynewright/lynewright-integration-template
+  template_commit: d6e17578deee53c6c885e2ab3d8840985999f021
+  template_path: mcp/lynewright-integration.yaml
+  source_snapshot: sources/template/mcp/lynewright-integration.yaml
+  method: copy file
+  artifact_filename: lynewright.integration.template-mcp-1.0.0.yaml

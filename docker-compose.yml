@@ -1,0 +1,94 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Containerfile
+    environment:
+      LYNEWRIGHT_ENV: development
+      LYNEWRIGHT_DB_PATH: /data/lynewright.sqlite3
+      LYNEWRIGHT_MANAGED_MEDIA_DIR: ${LYNEWRIGHT_MANAGED_MEDIA_DIR:-/data/media}
+      LYNEWRIGHT_BOOTSTRAP_EMAIL: ${LYNEWRIGHT_BOOTSTRAP_EMAIL:-admin@example.test}
+      LYNEWRIGHT_BOOTSTRAP_PASSWORD: ${LYNEWRIGHT_BOOTSTRAP_PASSWORD:-change-this-placeholder-before-first-login}
+      LYNEWRIGHT_CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+      LYNEWRIGHT_PUBLIC_URL: http://localhost:8080
+      LYNEWRIGHT_INTERNAL_MEDIA_URL: ${LYNEWRIGHT_INTERNAL_MEDIA_URL:-http://api:8000}
+      LYNEWRIGHT_INTERNAL_ENDPOINT__CLI_THUMBNAIL: http://cli-thumbnail:8001
+      LYNEWRIGHT_DEMO: ${LYNEWRIGHT_DEMO:-1}
+      LYNEWRIGHT_PLUGINS: ${LYNEWRIGHT_PLUGINS:-app.integrations.demo.bootstrap}
+      LYNEWRIGHT_INTEGRATION_PACKAGES: ${LYNEWRIGHT_INTEGRATION_PACKAGES:-}
+      LYNEWRIGHT_CATALOGUE_URL: ${LYNEWRIGHT_CATALOGUE_URL:-}
+      LYNEWRIGHT_CATALOGUE_KEYS: ${LYNEWRIGHT_CATALOGUE_KEYS:-}
+      LYNEWRIGHT_CATALOGUE_INTERNAL_ENDPOINT_REF: ${LYNEWRIGHT_CATALOGUE_INTERNAL_ENDPOINT_REF:-}
+      LYNEWRIGHT_CATALOGUE_ALLOW_DEV_KEY: ${LYNEWRIGHT_CATALOGUE_ALLOW_DEV_KEY:-0}
+      LYNEWRIGHT_CATALOGUE_FILE_MAX_BYTES: ${LYNEWRIGHT_CATALOGUE_FILE_MAX_BYTES:-1048576}
+      LYNEWRIGHT_CATALOGUE_WHEEL_MAX_BYTES: ${LYNEWRIGHT_CATALOGUE_WHEEL_MAX_BYTES:-104857600}
+      LYNEWRIGHT_INSTALL_POLICY: ${LYNEWRIGHT_INSTALL_POLICY:-confirm}
+      LYNEWRIGHT_PACKAGES_DIR: ${LYNEWRIGHT_PACKAGES_DIR:-/data/packages}
+      LYNEWRIGHT_PACKAGES_HOST_DIR: ${LYNEWRIGHT_PACKAGES_HOST_DIR:-./data/packages}
+      LYNEWRIGHT_RUNTIME_WORKER_ENABLED: "1"
+      LYNEWRIGHT_RUNTIME_WORKER_MODE: embedded
+      LYNEWRIGHT_OPERATOR_AUTOMATION_ENABLED: "0"
+      LYNEWRIGHT_TELEGRAM_ENABLED: ${LYNEWRIGHT_TELEGRAM_ENABLED:-0}
+    volumes:
+      - lynewright-data:/data
+      - ${LYNEWRIGHT_PACKAGES_HOST_DIR:-./data/packages}:${LYNEWRIGHT_PACKAGES_DIR:-/data/packages}
+    networks:
+      - default
+      - lynewright-integration
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; response = urlopen('http://127.0.0.1:8000/health', timeout=3); raise SystemExit(0 if response.status == 200 else 1)"
+      interval: 5s
+      timeout: 4s
+      retries: 20
+      start_period: 10s
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: frontend/Containerfile.lynewright
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  cli-thumbnail:
+    profiles: ["cli-example"]
+    build:
+      context: ./templates/cli-wrapper
+      dockerfile: examples/thumbnail/Containerfile
+    environment:
+      WRAPPER_COMMAND_FILE: /app/command.yaml
+      WRAPPER_WORKDIR: /work
+      WRAPPER_PORT: "8001"
+    read_only: true
+    tmpfs:
+      - /work:size=256m,mode=1777
+    cpus: 1.0
+    mem_limit: 512m
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [lynewright-integration]
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; response = urlopen('http://127.0.0.1:8001/health', timeout=3); raise SystemExit(0 if response.status == 200 else 1)"
+      interval: 5s
+      timeout: 4s
+      retries: 20
+      start_period: 5s
+
+volumes:
+  lynewright-data:
+
+networks:
+  default: {}
+  lynewright-integration:
+    internal: true

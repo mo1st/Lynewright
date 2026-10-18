@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lynewright.dev/schemas/integration-file.schema.json",
+  "title": "Lynewright declarative integration file",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "id", "name", "version", "lynewright_version", "runtime_kind", "endpoint_url"],
+  "properties": {
+    "format": {"const": "lynewright-integration/1"},
+    "id": {"type": "string", "minLength": 3, "maxLength": 160, "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"},
+    "name": {"type": "string", "minLength": 1, "maxLength": 120},
+    "version": {"type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"},
+    "lynewright_version": {"type": "string", "minLength": 1, "maxLength": 120},
+    "runtime_kind": {"enum": ["openapi", "mcp", "webhook"]},
+    "endpoint_url": {"type": "string", "minLength": 0, "maxLength": 2000},
+    "internal_endpoint_ref": {"type": "string", "maxLength": 64, "pattern": "^[a-z][a-z0-9_]{1,63}$"},
+    "openapi": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["url"], "properties": {"url": {"type": "string", "format": "uri", "maxLength": 2000}}},
+        {"type": "object", "additionalProperties": false, "required": ["inline"], "properties": {"inline": {"type": "object", "maxProperties": 1000}}}
+      ]
+    },
+    "credentials": {
+      "type": "array", "maxItems": 20, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["name", "description", "required"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_.:-]+$"},
+          "description": {"type": "string", "maxLength": 500},
+          "required": {"type": "boolean"}
+        }
+      }
+    },
+    "settings_schema": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_id", "fields"],
+      "properties": {
+        "schema_id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}$"},
+        "fields": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"$ref": "#/$defs/settingField"}}
+      }
+    },
+    "operations": {
+      "type": "array", "maxItems": 500,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "An operation or tool is approved on import only when enabled is explicitly true; if omitted, it is off."
+          },
+          "operation_id": {"type": "string", "minLength": 1, "maxLength": 200},
+          "tool_name": {"type": "string", "minLength": 1, "maxLength": 200},
+          "description": {"type": "string", "maxLength": 500},
+          "input_hint": {
+            "type": "object", "maxProperties": 100,
+            "properties": {
+              "media": {
+                "type": "object", "maxProperties": 50,
+                "propertyNames": {"pattern": "^(?:body|path|query|headers)(?:\\.[A-Za-z0-9_-]+)*$"},
+                "additionalProperties": {"enum": ["lynewright-media", "lynewright-upload"]}
+              }
+            }
+          },
+          "output_hint": {
+            "type": "object",
+            "maxProperties": 100,
+            "properties": {
+              "media": {
+                "type": "object",
+                "maxProperties": 50,
+                "propertyNames": {"pattern": "^[A-Za-z0-9_*.-]{1,200}$"},
+                "additionalProperties": {"const": "lynewright-artifact"}
+              }
+            }
+          }
+        },
+        "oneOf": [{"required": ["operation_id"]}, {"required": ["tool_name"]}]
+      }
+    },
+    "async": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operation_id", "status_operation_id"],
+      "properties": {
+        "operation_id": {"type": "string", "minLength": 1, "maxLength": 200},
+        "status_operation_id": {"type": "string", "minLength": 1, "maxLength": 200},
+        "job_id_path": {"type": "string", "minLength": 1, "maxLength": 200, "default": "job_id"},
+        "status_argument_path": {"type": "string", "minLength": 1, "maxLength": 200, "default": "path.job_id"}
+      }
+    },
+    "webhook": {
+      "type": "object", "additionalProperties": false,
+      "required": ["event_type", "payload_mapping", "verification"],
+      "properties": {
+        "event_type": {"type": "string", "minLength": 1, "maxLength": 120},
+        "payload_mapping": {"type": "object", "maxProperties": 50, "propertyNames": {"pattern": "^[a-z][a-z0-9_.-]{0,119}$"}, "additionalProperties": {"type": "string", "maxLength": 200}},
+        "verification": {
+          "type": "object", "additionalProperties": false,
+          "required": ["mode", "credential_ref"],
+          "properties": {
+            "mode": {"enum": ["hmac_sha256", "shared_secret"]},
+            "credential_ref": {"type": "string", "minLength": 1, "maxLength": 256},
+            "signature_header": {"type": "string", "maxLength": 120},
+            "timestamp_header": {"type": "string", "maxLength": 120},
+            "delivery_header": {"type": "string", "maxLength": 120},
+            "tolerance_seconds": {"type": "integer", "minimum": 1, "maximum": 86400}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "settingField": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "type"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}$"},
+        "label": {"type": "string", "maxLength": 120},
+        "type": {"enum": ["text", "number", "boolean", "enum", "credential_ref", "list"]},
+        "description": {"type": "string", "maxLength": 500},
+        "required": {"type": "boolean"},
+        "default": {},
+        "options": {"type": "array", "maxItems": 50, "items": {"type": "string", "maxLength": 120}},
+        "min": {"type": "number"},
+        "max": {"type": "number"},
+        "max_items": {"type": "integer", "minimum": 1, "maximum": 100},
+        "credential_kind": {"type": "string", "maxLength": 80},
+        "required_when": {"type": "object", "minProperties": 1, "maxProperties": 20},
+        "runtime_binding": {
+          "type": "object", "additionalProperties": false,
+          "required": ["target", "name"],
+          "properties": {"target": {"const": "config"}, "name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,79}$"}, "collection": {"type": "boolean"}}
+        }
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"runtime_kind": {"const": "openapi"}}, "required": ["runtime_kind"]}, "then": {"required": ["openapi"]}},
+    {"if": {"properties": {"runtime_kind": {"const": "webhook"}}, "required": ["runtime_kind"]}, "then": {"required": ["webhook"]}},
+    {"if": {"properties": {"runtime_kind": {"const": "mcp"}}, "required": ["runtime_kind"]}, "then": {"properties": {"operations": {"items": {"required": ["tool_name"]}}}}},
+    {"if": {"properties": {"runtime_kind": {"const": "openapi"}}, "required": ["runtime_kind"]}, "then": {"properties": {"operations": {"items": {"required": ["operation_id"]}}}}}
+  ]
+}

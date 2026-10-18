@@ -1,0 +1,5 @@
+format: lynewright-integration/99
+id: invalid
+runtime_kind: openapi
+endpoint_url: not-a-url
+operations: []

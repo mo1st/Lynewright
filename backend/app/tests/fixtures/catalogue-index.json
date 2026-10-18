@@ -1,0 +1,107 @@
+{
+  "format": "lynewright-catalogue/1",
+  "serial": 1,
+  "generated_at": "2026-10-15T12:00:00Z",
+  "name": "Lynewright test index",
+  "entries": [
+    {
+      "id": "fixture.openapi",
+      "version": "1.0.0",
+      "kind": "file",
+      "source": "https://example.org/fixture/lynewright-integration.yaml",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "lynewright_version": ">=0.1.0 <1.0.0",
+      "permissions": {
+        "capabilities": [],
+        "egress": "none",
+        "media": "none",
+        "credential_refs": []
+      },
+      "review": {
+        "reviewer": "Lynewright test",
+        "date": "2026-10-15",
+        "catalogue_commit": "1234567890abcdef"
+      },
+      "licence": "Apache-2.0"
+    },
+    {
+      "id": "fixture.native",
+      "version": "2.1.0",
+      "kind": "package",
+      "source": "https://example.org/dist/lynewright_fixture-2.1.0-py3-none-any.whl",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "lynewright_version": "^0.1.0",
+      "permissions": {
+        "capabilities": [
+          "line.operation"
+        ],
+        "egress": "internet",
+        "media": "read",
+        "credential_refs": [
+          "fixture.api"
+        ]
+      },
+      "limits": {
+        "cpus": 1,
+        "memory_mb": 256,
+        "pids": 64,
+        "timeout_seconds": 30
+      },
+      "review": {
+        "reviewer": "Lynewright test",
+        "date": "2026-10-15",
+        "catalogue_commit": "1234567890abcdef"
+      },
+      "licence": "Apache-2.0"
+    },
+    {
+      "id": "fixture.wrapper",
+      "version": "1.0.0",
+      "kind": "container",
+      "source": "ghcr.io/lynewright/fixture-wrapper@sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "lynewright_version": ">=0.1.0",
+      "permissions": {
+        "capabilities": [],
+        "egress": "none",
+        "media": "write",
+        "credential_refs": []
+      },
+      "limits": {
+        "cpus": 0.5,
+        "memory_mb": 128,
+        "pids": 32,
+        "timeout_seconds": 15
+      },
+      "review": {
+        "reviewer": "Lynewright test",
+        "date": "2026-10-15",
+        "catalogue_commit": "1234567890abcdef"
+      },
+      "licence": "Apache-2.0"
+    },
+    {
+      "id": "fixture.yanked",
+      "version": "0.9.0",
+      "kind": "file",
+      "source": "https://example.org/fixture/old.yaml",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "lynewright_version": ">=0.1.0",
+      "permissions": {
+        "capabilities": [],
+        "egress": "none",
+        "media": "none",
+        "credential_refs": []
+      },
+      "review": {
+        "reviewer": "Lynewright test",
+        "date": "2026-10-15",
+        "catalogue_commit": "1234567890abcdef"
+      },
+      "yanked": {
+        "reason": "Fixture demonstrates yanked entries.",
+        "date": "2026-10-15"
+      },
+      "licence": "Apache-2.0"
+    }
+  ]
+}
