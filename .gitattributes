@@ -1,0 +1,6 @@
+catalogue/dist/** -text
+catalogue/sources/** -text
+**/*.minisig -text
+backend/app/tests/fixtures/catalogue-k55/** -text
+backend/app/tests/fixtures/catalogue/minisign-interop/** -text
+backend/app/tests/fixtures/catalogue-index.json -text

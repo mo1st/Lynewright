@@ -1,0 +1,26 @@
+.panel { display: grid; min-width: 0; gap: var(--space-5); }
+.steps { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.step { display: grid; gap: var(--space-3); min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); }
+.stepDone { opacity: 0.75; }
+.stepHeader { display: flex; align-items: center; gap: var(--space-3); }
+.stepNumber { display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; flex: none; border-radius: 999px; background: var(--color-neutral-bg); color: var(--color-neutral-ink); font-weight: 600; }
+.stepNumberDone { background: var(--color-positive-bg); color: var(--color-positive-ink); }
+.stepTitle { margin: 0; font-size: var(--font-size-16); }
+.hint { margin: 0; color: var(--color-text-muted); }
+.howTo { margin: 0; padding-left: 1.25rem; color: var(--color-text-secondary); display: grid; gap: var(--space-1); }
+.tokenRow { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2); }
+.tokenRow > :first-child { flex: 1 1 18rem; min-width: 0; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.linkBox { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.linkActions { display: grid; justify-items: start; gap: var(--space-2); }
+.qr { width: 9rem; height: 9rem; border-radius: var(--radius-sm); }
+.waiting { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--color-text-secondary); }
+.choices { display: grid; gap: var(--space-2); margin: 0; border: 0; padding: 0; }
+.statusRow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.statusIdentity { display: grid; gap: var(--space-1); min-width: 0; }
+.statusIdentity > strong { overflow-wrap: anywhere; }
+.statusIdentity > small { color: var(--color-text-muted); }
+.advanced { border-top: 1px solid var(--color-border); padding-top: var(--space-4); }
+.advanced > summary { cursor: pointer; font-weight: 600; }
+.advancedBody { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
+.error { margin: 0; color: var(--color-danger); }

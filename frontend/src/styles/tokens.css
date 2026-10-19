@@ -1,0 +1,169 @@
+/* Lynewright design tokens. Concrete colors live here and nowhere else. */
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f4f4f2;
+  --color-surface: #eeeeec;
+  --color-surface-raised: #ffffff;
+  --color-border: #898983;
+  --color-border-strong: #70706a;
+  --color-text: #191918;
+  --color-text-secondary: #41413d;
+  --color-text-muted: #60605a;
+  --color-accent: #c73516;
+  --color-accent-hover: #a92b12;
+  --color-accent-contrast: #ffffff;
+  --color-success: #17663b;
+  --color-success-bg: #e7f3eb;
+  --color-warning: #805000;
+  --color-warning-bg: #fff3d7;
+  --color-danger: #a52824;
+  --color-danger-bg: #fce9e7;
+  --color-info: #245985;
+  --color-info-bg: #e8f1f8;
+  --color-shadow: #191918;
+  --color-scrim: #111111;
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-size-12: 0.75rem;
+  --font-size-13: 0.8125rem;
+  --font-size-14: 0.875rem;
+  --font-size-16: 1rem;
+  --font-size-20: 1.25rem;
+  --font-size-24: 1.5rem;
+  --font-size-30: 1.875rem;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --shadow-sm: 0 1px 2px color-mix(in srgb, var(--color-shadow) 8%, transparent);
+  --shadow-md: 0 8px 24px color-mix(in srgb, var(--color-shadow) 12%, transparent);
+  --shadow-lg: 0 24px 64px color-mix(in srgb, var(--color-shadow) 18%, transparent);
+
+  --z-content: 0;
+  --z-sticky: 10;
+  --z-dropdown: 20;
+  --z-overlay: 30;
+  --z-toast: 40;
+  --z-skip-link: 50;
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 240ms;
+  --duration-spin: 700ms;
+  --duration-reduced: 1ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --target-min: 2.75rem;
+  --focus-ring: var(--color-accent);
+
+
+  /* Semantic color, layout, and motion tokens retained from the prior theme. */
+  --color-text-inverse: var(--color-accent-contrast);
+  --color-text-inverse-muted: #d0d0ca;
+  --color-sidebar: #262625;
+  --color-sidebar-active: #3a3a38;
+  --color-action-secondary: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface-raised));
+  --color-chart-1: var(--color-accent);
+  --color-accent-text: var(--color-accent);
+  --color-success-text: var(--color-success);
+  --color-positive-ink: var(--color-success);
+  --color-positive-bg: var(--color-success-bg);
+  --color-attention-ink: var(--color-warning);
+  --color-attention-bg: var(--color-warning-bg);
+  --color-critical-ink: var(--color-danger);
+  --color-critical-bg: var(--color-danger-bg);
+  --color-active-ink: var(--color-info);
+  --color-active-bg: var(--color-info-bg);
+  --color-neutral-ink: var(--color-text-secondary);
+  --color-neutral-bg: var(--color-surface);
+  --shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--focus-ring) 24%, transparent);
+  --layout-content-max: none;
+  --layout-sidebar-width: 15.5rem;
+  --layout-sidebar-collapsed-width: 5.25rem;
+  --layout-mobile-nav-height: 4.75rem;
+  --motion-press: var(--duration-fast);
+  --motion-sheet: var(--duration-slow);
+  --motion-spin-reduced: 2.4s;
+  --motion-pulse: 1.6s;
+  --motion-pulse-reduced: 3.2s;
+
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #141414;
+  --color-surface: #1d1d1c;
+  --color-surface-raised: #242423;
+  --color-border: #777772;
+  --color-border-strong: #898983;
+  --color-text: #f2f2ef;
+  --color-text-secondary: #d0d0ca;
+  --color-text-muted: #b4b4ad;
+  --color-accent: #ff825b;
+  --color-accent-hover: #ff9a79;
+  --color-accent-contrast: #23140f;
+  --color-success: #73d4a0;
+  --color-success-bg: #173322;
+  --color-warning: #ffd17a;
+  --color-warning-bg: #3d3018;
+  --color-danger: #ff938b;
+  --color-danger-bg: #42211f;
+  --color-info: #8dcaff;
+  --color-info-bg: #1b3142;
+  --color-shadow: #000000;
+  --color-scrim: #000000;
+  --color-text-inverse-muted: #d0d0ca;
+  --color-sidebar: #1a1a19;
+  --color-sidebar-active: #30302e;
+  --color-accent-text: color-mix(in srgb, var(--color-accent) 58%, #ffffff);
+  --color-success-text: color-mix(in srgb, var(--color-success) 65%, #ffffff);
+  --color-positive-ink: #82e0ad;
+  --color-positive-bg: #173322;
+  --color-attention-ink: #ffd17a;
+  --color-attention-bg: #3d3018;
+  --color-critical-ink: #ffaaa3;
+  --color-critical-bg: #42211f;
+  --color-active-ink: #a9d6ff;
+  --color-active-bg: #1b3142;
+  --color-neutral-ink: #d0d0ca;
+  --color-neutral-bg: #30302e;
+  --shadow-sm: 0 1px 2px color-mix(in srgb, var(--color-shadow) 28%, transparent);
+  --shadow-md: 0 8px 24px color-mix(in srgb, var(--color-shadow) 38%, transparent);
+  --shadow-lg: 0 24px 64px color-mix(in srgb, var(--color-shadow) 48%, transparent);
+  --focus-ring: var(--color-accent);
+
+
+  /* Semantic color, layout, and motion tokens retained from the prior theme. */
+  --color-text-inverse: var(--color-text);
+  --color-action-secondary: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface-raised));
+  --color-chart-1: var(--color-accent);
+  --color-accent-text: color-mix(in srgb, var(--color-accent) 58%, #ffffff);
+  --color-sidebar: #1a1a19;
+  --color-sidebar-active: #30302e;
+  --shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--focus-ring) 24%, transparent);
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: var(--duration-reduced);
+    --duration-base: var(--duration-reduced);
+    --duration-slow: var(--duration-reduced);
+    --motion-press: var(--duration-reduced);
+    --motion-sheet: var(--duration-reduced);
+    --duration-spin: 2.4s;
+  }
+}

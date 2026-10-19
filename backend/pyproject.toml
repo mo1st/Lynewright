@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=75,<82"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lynewright"
+version = "0.1.0"
+description = "Lynewright backend runtime"
+requires-python = ">=3.12"
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["schemas/*.json", "integrations/**/data/**/*.json", "resources/runner/Containerfile.integration", "resources/catalogue-release-key.pub"]

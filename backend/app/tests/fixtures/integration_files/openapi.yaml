@@ -1,0 +1,24 @@
+format: lynewright-integration/1
+id: lynewright.integration.fixture-openapi
+name: Local OpenAPI Fixture
+version: 1.0.0
+lynewright_version: ^0.1.0
+runtime_kind: openapi
+endpoint_url: http://127.0.0.1:8000
+openapi:
+  inline:
+    openapi: 3.0.3
+    info:
+      title: Local fixture API
+      version: 1.0.0
+    paths:
+      /health:
+        get:
+          operationId: health
+          responses:
+            '200':
+              description: Healthy
+operations:
+  - operation_id: health
+    enabled: true
+    description: Read the local stub health response.

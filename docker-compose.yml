@@ -1,0 +1,158 @@
+services:
+  api:
+    user: "0:0"
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    # The entrypoint needs these to hand the data volume to the host user and
+    # drop root; nothing else in the API needs elevated capabilities.
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    entrypoint: ["python", "entrypoint.py"]
+    # Setting entrypoint clears the image CMD, so the start command is explicit.
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    build:
+      context: .
+      dockerfile: backend/Containerfile
+    environment:
+      # Production mode keeps authentication on and refuses to start without a
+      # private secret key. Set LYNEWRIGHT_ENV=development only for local hacking.
+      LYNEWRIGHT_ENV: ${LYNEWRIGHT_ENV:-production}
+      LYNEWRIGHT_SECRET_KEY: ${LYNEWRIGHT_SECRET_KEY:?Run install.sh or set LYNEWRIGHT_SECRET_KEY in .env}
+      LYNEWRIGHT_UID: ${LYNEWRIGHT_UID:-1000}
+      LYNEWRIGHT_GID: ${LYNEWRIGHT_GID:-1000}
+      LYNEWRIGHT_DB_PATH: /data/lynewright.sqlite3
+      LYNEWRIGHT_MANAGED_MEDIA_DIR: ${LYNEWRIGHT_MANAGED_MEDIA_DIR:-/data/media}
+      LYNEWRIGHT_BOOTSTRAP_EMAIL: ${LYNEWRIGHT_BOOTSTRAP_EMAIL:-admin@example.com}
+      LYNEWRIGHT_BOOTSTRAP_PASSWORD: ${LYNEWRIGHT_BOOTSTRAP_PASSWORD:?Run install.sh or set LYNEWRIGHT_BOOTSTRAP_PASSWORD in .env}
+      LYNEWRIGHT_CORS_ORIGINS: ${LYNEWRIGHT_CORS_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
+      LYNEWRIGHT_TRUSTED_PROXY_HOSTS: ${LYNEWRIGHT_TRUSTED_PROXY_HOSTS:-dashboard}
+      LYNEWRIGHT_PUBLIC_URL: ${LYNEWRIGHT_PUBLIC_URL:-http://localhost:8080}
+      LYNEWRIGHT_INTERNAL_MEDIA_URL: ${LYNEWRIGHT_INTERNAL_MEDIA_URL:-http://api:8000}
+      LYNEWRIGHT_INTERNAL_ENDPOINT__CLI_THUMBNAIL: http://cli-thumbnail:8001
+      LYNEWRIGHT_DEMO: ${LYNEWRIGHT_DEMO:-1}
+      LYNEWRIGHT_PLUGINS: ${LYNEWRIGHT_PLUGINS:-app.integrations.demo.bootstrap}
+      LYNEWRIGHT_INTEGRATION_PACKAGES: ${LYNEWRIGHT_INTEGRATION_PACKAGES:-}
+      LYNEWRIGHT_CATALOGUE_URL: ${LYNEWRIGHT_CATALOGUE_URL:-}
+      LYNEWRIGHT_CATALOGUE_KEYS: ${LYNEWRIGHT_CATALOGUE_KEYS:-}
+      LYNEWRIGHT_CATALOGUE_INTERNAL_ENDPOINT_REF: ${LYNEWRIGHT_CATALOGUE_INTERNAL_ENDPOINT_REF:-}
+      LYNEWRIGHT_CATALOGUE_ALLOW_DEV_KEY: ${LYNEWRIGHT_CATALOGUE_ALLOW_DEV_KEY:-0}
+      LYNEWRIGHT_CATALOGUE_FILE_MAX_BYTES: ${LYNEWRIGHT_CATALOGUE_FILE_MAX_BYTES:-1048576}
+      LYNEWRIGHT_CATALOGUE_WHEEL_MAX_BYTES: ${LYNEWRIGHT_CATALOGUE_WHEEL_MAX_BYTES:-104857600}
+      LYNEWRIGHT_INSTALL_POLICY: ${LYNEWRIGHT_INSTALL_POLICY:-confirm}
+      LYNEWRIGHT_PACKAGES_DIR: ${LYNEWRIGHT_PACKAGES_DIR:-/data/packages}
+      LYNEWRIGHT_PACKAGES_HOST_DIR: ${LYNEWRIGHT_PACKAGES_HOST_DIR:-./data/packages}
+      LYNEWRIGHT_RUNTIME_WORKER_ENABLED: "1"
+      LYNEWRIGHT_RUNTIME_WORKER_MODE: embedded
+      LYNEWRIGHT_OPERATOR_AUTOMATION_ENABLED: "0"
+      LYNEWRIGHT_TELEGRAM_ENABLED: ${LYNEWRIGHT_TELEGRAM_ENABLED:-1}
+    volumes:
+      - lynewright-data:/data
+      - ${LYNEWRIGHT_PACKAGES_HOST_DIR:-./data/packages}:${LYNEWRIGHT_PACKAGES_DIR:-/data/packages}
+    networks:
+      - default
+      - lynewright-integration
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; response = urlopen('http://127.0.0.1:8000/health', timeout=3); raise SystemExit(0 if response.status == 200 else 1)"
+      interval: 5s
+      timeout: 4s
+      retries: 20
+      start_period: 10s
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: frontend/Containerfile.lynewright
+    depends_on:
+      api:
+        condition: service_healthy
+      mcp:
+        condition: service_healthy
+    ports:
+      - "${LYNEWRIGHT_BIND:-127.0.0.1}:${LYNEWRIGHT_PORT:-8080}:8080"
+    security_opt: [no-new-privileges:true]
+
+  mcp:
+    user: "0:0"
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    # The entrypoint needs these to hand the data volume to the host user and
+    # drop root; nothing else in the API needs elevated capabilities.
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    entrypoint: ["python", "entrypoint.py"]
+    build:
+      context: .
+      dockerfile: backend/Containerfile
+    command: ["uvicorn", "app.mcp_server:app", "--host", "0.0.0.0", "--port", "8001"]
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      LYNEWRIGHT_ENV: ${LYNEWRIGHT_ENV:-production}
+      LYNEWRIGHT_SECRET_KEY: ${LYNEWRIGHT_SECRET_KEY:?Run install.sh or set LYNEWRIGHT_SECRET_KEY in .env}
+      LYNEWRIGHT_CORS_ORIGINS: ${LYNEWRIGHT_CORS_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
+      LYNEWRIGHT_UID: ${LYNEWRIGHT_UID:-1000}
+      LYNEWRIGHT_GID: ${LYNEWRIGHT_GID:-1000}
+      LYNEWRIGHT_SKIP_DATA_CHOWN: "1"
+      LYNEWRIGHT_DB_PATH: /data/lynewright.sqlite3
+      LYNEWRIGHT_MANAGED_MEDIA_DIR: ${LYNEWRIGHT_MANAGED_MEDIA_DIR:-/data/media}
+      LYNEWRIGHT_PUBLIC_URL: ${LYNEWRIGHT_PUBLIC_URL:-http://localhost:8080}
+      LYNEWRIGHT_MCP_OAUTH_ENABLED: ${LYNEWRIGHT_MCP_OAUTH_ENABLED:-1}
+      LYNEWRIGHT_INTERNAL_MEDIA_URL: ${LYNEWRIGHT_INTERNAL_MEDIA_URL:-http://api:8000}
+      LYNEWRIGHT_MCP_PLUGINS: ${LYNEWRIGHT_MCP_PLUGINS:-}
+      LYNEWRIGHT_RUNTIME_EXECUTION_PLANE: api
+    volumes:
+      - lynewright-data:/data
+      - ${LYNEWRIGHT_PACKAGES_HOST_DIR:-./data/packages}:${LYNEWRIGHT_PACKAGES_DIR:-/data/packages}
+    networks:
+      - default
+      - lynewright-integration
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; response = urlopen('http://127.0.0.1:8001/health', timeout=3); raise SystemExit(0 if response.status == 200 else 1)"
+      interval: 5s
+      timeout: 4s
+      retries: 20
+      start_period: 10s
+
+  cli-thumbnail:
+    profiles: ["cli-example"]
+    build:
+      context: ./templates/cli-wrapper
+      dockerfile: examples/thumbnail/Containerfile
+    environment:
+      WRAPPER_COMMAND_FILE: /app/command.yaml
+      WRAPPER_WORKDIR: /work
+      WRAPPER_PORT: "8001"
+    read_only: true
+    tmpfs:
+      - /work:size=256m,mode=1777
+    cpus: 1.0
+    mem_limit: 512m
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [lynewright-integration]
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; response = urlopen('http://127.0.0.1:8001/health', timeout=3); raise SystemExit(0 if response.status == 200 else 1)"
+      interval: 5s
+      timeout: 4s
+      retries: 20
+      start_period: 5s
+
+volumes:
+  lynewright-data:
+
+networks:
+  default: {}
+  lynewright-integration:
+    internal: true

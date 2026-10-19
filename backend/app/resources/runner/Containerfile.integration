@@ -1,0 +1,17 @@
+ARG RUNNER_BASE_IMAGE=lynewright-runner:latest
+FROM ${RUNNER_BASE_IMAGE}
+
+ARG INTEGRATION_WHEEL
+ARG INTEGRATION_WHEEL_FILENAME
+ARG INTEGRATION_WHEEL_SHA256
+COPY ${INTEGRATION_WHEEL} /tmp/${INTEGRATION_WHEEL_FILENAME}
+USER 0:0
+RUN WHEEL_FILENAME="$INTEGRATION_WHEEL_FILENAME" python -c 'import os,pathlib; from packaging.utils import parse_wheel_filename; filename=os.environ["WHEEL_FILENAME"]; assert pathlib.PurePath(filename).name == filename; parse_wheel_filename(filename)' \
+    && umask 022 \
+    && printf '/tmp/%s --hash=sha256:%s\n' "$INTEGRATION_WHEEL_FILENAME" "$INTEGRATION_WHEEL_SHA256" > /tmp/runner-requirements.txt \
+    && pip install --no-cache-dir --no-deps --require-hashes -r /tmp/runner-requirements.txt \
+    && rm -f "/tmp/$INTEGRATION_WHEEL_FILENAME" /tmp/runner-requirements.txt \
+    && chmod -R go-w /usr/local/lib/python3.12/site-packages
+
+USER 10001:10001
+CMD ["python", "/opt/lynewright/runner.py"]

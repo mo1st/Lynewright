@@ -1,0 +1,114 @@
+html {
+  background: var(--color-bg);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-16);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body { min-width: 20rem; max-width: 100%; margin: 0; background: var(--color-bg); }
+
+/* The document must be allowed to report overflow so it can be fixed at the
+ * component that causes it.  These are shrink constraints, not clipping. */
+#root,
+.app-frame,
+.workspace,
+.page-stack > * { min-width: 0; }
+
+button,
+input,
+select,
+textarea { font: inherit; }
+
+button,
+[role="button"],
+input:not([type="hidden"]),
+select { min-block-size: var(--target-min); }
+
+button,
+a { -webkit-tap-highlight-color: transparent; }
+
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  z-index: 10000;
+  transform: translateY(-180%);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-md);
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+/* ---------------------------------------------------------------------------
+ * Reduced motion. This is the ONE global block — system.css and tokens.css each
+ * carried a near-duplicate, and between them they collapsed every transition to
+ * 0.01ms and froze every keyframe. Do not add a second one.
+ *
+ * Gentler, not zero. Colour, opacity and shadow keep transitioning, because
+ * that is how a state change stays legible rather than teleporting. `transform`
+ * stays for press feedback. Edge-anchored sheets replace travel with a short
+ * opacity cross-fade beside their definitions in layout.css.
+ *
+ * `` is load-bearing: primitives.css and layout.css are imported
+ * after this file, and a class selector beats `*` on specificity regardless of
+ * order.
+ *
+ * Animations are deliberately NOT clobbered here. There are four in the app —
+ * three loading spinners and one status pulse — and a blanket
+ * `animation-duration: 0.01ms` froze all of them, turning the spinners into
+ * static broken rings that no longer said "loading". Each is slowed beside its
+ * own definition instead (app.css, primitives.css, console.css).
+ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+/* Last-resort crash screen rendered by ErrorBoundary when a render-time
+ * exception escapes a page. Kept token-driven so it holds in both themes. */
+.crash-boundary {
+  max-width: 34rem;
+  margin: 16vh auto 0;
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.crash-boundary__actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* The workspace is a programmatic focus target only: the skip link and route
+   changes move focus here so the new page is announced and the next Tab starts
+   inside it. tabindex="-1" keeps it out of the tab order, so suppressing the
+   ring removes no keyboard affordance — it only avoids outlining the entire
+   page on every navigation. */
+#main-content:focus {
+  outline: none;
+}
+
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

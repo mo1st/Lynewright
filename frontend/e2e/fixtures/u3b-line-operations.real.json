@@ -1,0 +1,227 @@
+{
+  "items": [
+    {
+      "operation_id": "lynewright.integrations.operation.e99b08db0ed0cce2771f92a5",
+      "revision": "2ed2469f570233a0d99a679bb448ea91",
+      "integration_id": "lynewright.integration.demo-writer",
+      "connection_id": "",
+      "contract": "lynewright.demo.writer",
+      "operation": "write",
+      "capability": "mcp:client:use",
+      "risk_class": "READ_ONLY",
+      "read_only": true,
+      "destructive": false,
+      "requires_approval": false,
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "minLength": 1
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic"
+        ],
+        "additionalProperties": false,
+        "caller_capability": "system:read",
+        "read_only": true,
+        "risk_class": "READ_ONLY",
+        "description": "Write a deterministic short note about a topic."
+      },
+      "output_schema": null,
+      "input_semantics": null,
+      "output_semantics": null,
+      "completion_contract": null,
+      "artifact_contract": null,
+      "contract_status": "declared",
+      "resource_requirements": [],
+      "source": "service_contract",
+      "kind": "native",
+      "async": null,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "minLength": 1
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic"
+        ],
+        "additionalProperties": false,
+        "caller_capability": "system:read",
+        "read_only": true,
+        "risk_class": "READ_ONLY",
+        "description": "Write a deterministic short note about a topic."
+      },
+      "description": "Write a deterministic short note about a topic.",
+      "run_actions": []
+    },
+    {
+      "operation_id": "lynewright.integrations.operation.910f1aa9f12e2ebc53a85603",
+      "revision": "389df6f1db94bc67b43a9b5bb782ac15",
+      "integration_id": "lynewright.integration.example-native",
+      "connection_id": "",
+      "contract": "lynewright.example.native-media",
+      "operation": "render",
+      "capability": "mcp:client:use",
+      "risk_class": "READ_ONLY",
+      "read_only": true,
+      "destructive": false,
+      "requires_approval": false,
+      "input_schema": {
+        "additionalProperties": false,
+        "caller_capability": "media:create",
+        "description": "Create a small managed PNG asynchronously.",
+        "properties": {
+          "prompt": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "read_only": true,
+        "required": [
+          "prompt"
+        ],
+        "risk_class": "READ_ONLY",
+        "type": "object"
+      },
+      "output_schema": null,
+      "input_semantics": null,
+      "output_semantics": null,
+      "completion_contract": null,
+      "artifact_contract": null,
+      "contract_status": "declared",
+      "resource_requirements": [],
+      "source": "service_contract",
+      "kind": "native",
+      "async": {
+        "status_contract": "lynewright.example.native-media",
+        "status_operation": "status",
+        "job_id_path": "job_id",
+        "status_argument": "job_id",
+        "state_field": "status",
+        "active_states": [
+          "accepted",
+          "pending"
+        ],
+        "terminal_states": [
+          "done",
+          "failed",
+          "cancelled",
+          "canceled",
+          "rejected"
+        ]
+      },
+      "schema": {
+        "additionalProperties": false,
+        "caller_capability": "media:create",
+        "description": "Create a small managed PNG asynchronously.",
+        "properties": {
+          "prompt": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "read_only": true,
+        "required": [
+          "prompt"
+        ],
+        "risk_class": "READ_ONLY",
+        "type": "object"
+      },
+      "description": "Create a small managed PNG asynchronously.",
+      "run_actions": []
+    },
+    {
+      "operation_id": "lynewright.integrations.operation.af886b3b004f9f90388f3d67",
+      "revision": "6da9bb92a3f8ec8badecfe2ff5137766",
+      "integration_id": "lynewright.integration.example-native",
+      "connection_id": "",
+      "contract": "lynewright.example.native-media",
+      "operation": "status",
+      "capability": "mcp:client:use",
+      "risk_class": "READ_ONLY",
+      "read_only": true,
+      "destructive": false,
+      "requires_approval": false,
+      "input_schema": {
+        "additionalProperties": false,
+        "caller_capability": "media:create",
+        "description": "Poll a managed PNG render job.",
+        "properties": {
+          "job_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "read_only": true,
+        "required": [
+          "job_id"
+        ],
+        "risk_class": "READ_ONLY",
+        "type": "object"
+      },
+      "output_schema": null,
+      "input_semantics": null,
+      "output_semantics": null,
+      "completion_contract": null,
+      "artifact_contract": null,
+      "contract_status": "declared",
+      "resource_requirements": [
+        {
+          "field": "job_id",
+          "path": [
+            "job_id"
+          ],
+          "name": "job_id",
+          "resource_type": "job"
+        }
+      ],
+      "source": "service_contract",
+      "kind": "native",
+      "async": null,
+      "schema": {
+        "additionalProperties": false,
+        "caller_capability": "media:create",
+        "description": "Poll a managed PNG render job.",
+        "properties": {
+          "job_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "read_only": true,
+        "required": [
+          "job_id"
+        ],
+        "risk_class": "READ_ONLY",
+        "type": "object"
+      },
+      "description": "Poll a managed PNG render job.",
+      "run_actions": []
+    }
+  ]
+}

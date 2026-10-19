@@ -1,0 +1,203 @@
+name: Lynewright checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Export hygiene
+        run: python tools/release/export_public.py --check-tree
+      - name: Identity scan (skips when the private list is absent)
+        run: python tools/release/identity_scan.py --history
+      - name: DCO
+        if: github.event_name == 'pull_request'
+        run: python tools/release/check_dco.py
+      - name: Install Python test dependencies
+        run: |
+          python -m pip install setuptools==81.0.0
+          python -m pip install ./backend -e ./testkit
+      - name: Backend tests and guards
+        working-directory: backend
+        run: python -m pytest app/tests
+      - name: Testkit
+        run: python -m pytest testkit/tests
+      - name: OpenAPI starter (including Lynewright tests)
+        working-directory: templates/starters/openapi
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pytest tests
+      - name: MCP starter (including Lynewright tests)
+        working-directory: templates/starters/mcp
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pytest tests
+      - name: Native starter (including Lynewright tests)
+        working-directory: templates/starters/native
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pip install -e .
+          python -m pytest tests
+      - name: CLI wrapper starter
+        working-directory: templates/starters/cli-wrapper
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pytest tests
+      - name: Catalogue verification and tests
+        working-directory: catalogue
+        run: |
+          python -m pip install -r requirements-test.txt
+          python tools/verify.py
+          python -m pytest -q --ignore=sources
+      - name: Documentation snippets
+        run: python tools/docs/sync_snippets.py --check
+      - name: Frontend tests and build
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test:styles
+          npm test
+          npm run build
+  installer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+      - name: Install ShellCheck
+        run: |
+          shellcheck_version=0.11.0
+          archive="shellcheck-v${shellcheck_version}.linux.x86_64.tar.xz"
+          curl --fail --location --silent --show-error             "https://github.com/koalaman/shellcheck/releases/download/v${shellcheck_version}/${archive}"             --output "$RUNNER_TEMP/$archive"
+          tar -xJf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/shellcheck-v${shellcheck_version}" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/shellcheck-v${shellcheck_version}/shellcheck" --version
+      - name: ShellCheck installer scripts
+        run: shellcheck install.sh uninstall.sh tools/install/test_install.sh
+      - name: Installer behavior tests
+        run: sh tools/install/test_install.sh
+      - name: Installer smoke host import guard
+        run: python3 tools/install/test_ci_smoke.py
+      - name: Install and sign in through the one-line flow
+        env:
+          LYNEWRIGHT_REPO_URL: file://${{ github.workspace }}
+          LYNEWRIGHT_REF: ${{ github.sha }}
+          LYNEWRIGHT_DIR: ${{ runner.temp }}/lynewright-install-smoke
+          LYNEWRIGHT_PORT: "18080"
+          LYNEWRIGHT_BIND: 127.0.0.1
+          LYNEWRIGHT_DEMO: "1"
+        run: |
+          set -eu
+          dump_compose_diagnostics() {
+            if [ -d "$LYNEWRIGHT_DIR" ]; then
+              if ! cd "$LYNEWRIGHT_DIR"; then
+                echo "Compose diagnostics could not enter $LYNEWRIGHT_DIR" >&2
+                return 0
+              fi
+              docker compose ps -a || true
+              docker compose logs --no-color mcp api || true
+            else
+              echo "Compose diagnostics unavailable: installer checkout is missing at $LYNEWRIGHT_DIR" >&2
+            fi
+          }
+          trap dump_compose_diagnostics ERR
+          git -C "$GITHUB_WORKSPACE" update-ref refs/heads/lynewright-installer-smoke "$LYNEWRIGHT_REF"
+          install_log="$RUNNER_TEMP/lynewright-install.log"
+          cd "$HOME"
+          if ! sh "$GITHUB_WORKSPACE/install.sh" >"$install_log" 2>&1; then
+            password=$(sed -n 's/^Generated admin password: //p' "$install_log")
+            if [ -n "$password" ]; then
+              printf '::add-mask::%s\n' "$password"
+            fi
+            sed -E 's/(Generated admin password: ).*/\1[redacted]/' "$install_log"
+            dump_compose_diagnostics
+            exit 1
+          fi
+          password=$(sed -n 's/^Generated admin password: //p' "$install_log")
+          email=$(sed -n 's/^Admin email: //p' "$install_log")
+          [ -n "$password" ]
+          [ "$email" = admin@example.com ]
+          printf '::add-mask::%s\n' "$password"
+          if ! LYNEWRIGHT_SMOKE_EMAIL="$email" LYNEWRIGHT_SMOKE_PASSWORD="$password" \
+            python3 "$GITHUB_WORKSPACE/tools/install/ci_smoke.py"; then
+            dump_compose_diagnostics
+            exit 1
+          fi
+      - name: Stop the smoke-test stack
+        if: always()
+        env:
+          LYNEWRIGHT_DIR: ${{ runner.temp }}/lynewright-install-smoke
+        run: |
+          set -eu
+          project=$(basename "$LYNEWRIGHT_DIR")
+          containers=
+          volumes=
+          images=
+          if [ -d "$LYNEWRIGHT_DIR" ]; then
+            cd "$LYNEWRIGHT_DIR"
+            containers=$(docker compose ps -aq)
+            volumes=$(docker volume ls -q --filter "label=com.docker.compose.project=$project")
+            images=$(docker compose images -q | sort -u)
+            sh "$LYNEWRIGHT_DIR/uninstall.sh" --yes
+            cd "$RUNNER_TEMP"
+            [ ! -e "$LYNEWRIGHT_DIR" ] || { echo 'uninstall left the checkout behind' >&2; exit 1; }
+          fi
+          remaining=$(docker ps -aq --filter "label=com.docker.compose.project=$project")
+          [ -z "$remaining" ] || { echo "uninstall left project containers: $remaining" >&2; exit 1; }
+          remaining=$(docker volume ls -q --filter "label=com.docker.compose.project=$project")
+          [ -z "$remaining" ] || { echo "uninstall left project volumes: $remaining" >&2; exit 1; }
+          for container in $containers; do
+            if docker container inspect "$container" >/dev/null 2>&1; then
+              echo "uninstall left container $container" >&2
+              exit 1
+            fi
+          done
+          for volume in $volumes; do
+            if docker volume inspect "$volume" >/dev/null 2>&1; then
+              echo "uninstall left volume $volume" >&2
+              exit 1
+            fi
+          done
+          for image in $images; do
+            if docker image inspect "$image" >/dev/null 2>&1; then
+              echo "uninstall left image $image" >&2
+              exit 1
+            fi
+          done
+  dependencies:
+    # Exports are force-pushed, which closes Dependabot pull requests, so
+    # known-vulnerable production and development dependencies fail CI here.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Python production dependencies
+        run: |
+          python -m pip install pip-audit==2.10.1
+          python -m pip_audit -r backend/requirements.txt
+      - name: Dashboard dependencies including development tools
+        working-directory: frontend
+        run: npm audit
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

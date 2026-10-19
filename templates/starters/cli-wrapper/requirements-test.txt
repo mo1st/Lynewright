@@ -1,0 +1,5 @@
+fastapi==0.139.0
+httpx==0.28.1
+pytest==9.0.3
+PyYAML==6.0.3
+python-multipart==0.0.31

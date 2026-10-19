@@ -1,0 +1,20 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    WRAPPER_COMMAND_FILE=/app/command.yaml \
+    WRAPPER_WORKDIR=/work \
+    WRAPPER_PORT=8001
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --uid 10001 --create-home --shell /usr/sbin/nologin wrapper
+
+WORKDIR /app
+RUN pip install --no-cache-dir fastapi uvicorn pyyaml
+COPY app.py ./app.py
+COPY examples/thumbnail/command.yaml ./command.yaml
+USER 10001:10001
+EXPOSE 8001
+CMD ["python", "app.py"]

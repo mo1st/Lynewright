@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools==83.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lynewright-integration-example"
+version = "1.0.0"
+description = "Starter native integration for Lynewright"
+requires-python = ">=3.12"
+
+[project.entry-points."lynewright.integrations"]
+example = "example_native.manifest"
+
+[tool.setuptools.packages.find]
+include = ["example_native*"]
+
+[tool.setuptools.package-data]
+example_native = ["lynewright-manifest.json"]

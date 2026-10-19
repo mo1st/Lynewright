@@ -1,0 +1,13 @@
+.panel { display: grid; min-width: 0; gap: var(--space-5); }
+.clientIdentity { display: grid; min-width: 0; gap: var(--space-1); }
+.clientIdentity > strong { overflow-wrap: anywhere; }
+.clientIdentity > small { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); color: var(--color-text-muted); }
+.explainer, .muted { margin: 0; color: var(--color-text-muted); }
+.connection { display: grid; min-width: 0; gap: var(--space-2); max-width: 42rem; }
+.connectionWarning { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-13); }
+.actions, .dialogActions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.dialogActions { justify-content: flex-end; }
+.form { display: grid; min-width: 0; gap: var(--space-4); }
+.scopeList { display: grid; gap: var(--space-2); margin: 0; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3); }
+.scopeList legend { padding-inline: var(--space-1); font-weight: 600; }
+.error { margin: 0; color: var(--color-danger); }

@@ -1,0 +1,54 @@
+format: lynewright-integration/1
+id: lynewright.integration.fixture-async-openapi
+name: Local Async OpenAPI Fixture
+version: 1.0.0
+lynewright_version: ^0.1.0
+runtime_kind: openapi
+endpoint_url: http://127.0.0.1:8000
+openapi:
+  inline:
+    openapi: 3.0.3
+    info:
+      title: Local async fixture API
+      version: 1.0.0
+    paths:
+      /start:
+        post:
+          operationId: submit
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    text:
+                      type: string
+                  required: [text]
+          responses:
+            '200':
+              description: Accepted
+      /status:
+        get:
+          operationId: status
+          parameters:
+            - name: job_id
+              in: query
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Job status
+operations:
+  - operation_id: submit
+    enabled: true
+    description: Submit an async job.
+  - operation_id: status
+    enabled: true
+    description: Poll an async job.
+async:
+  operation_id: submit
+  status_operation_id: status
+  job_id_path: job_id
+  status_argument_path: query.job_id

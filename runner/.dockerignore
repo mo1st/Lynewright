@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.git
+.env
+.env.*
+**/.env
+**/.env.*
+runner-secrets/
+data/
+**/data/
+*.db
+*.sqlite
+*.sqlite3

@@ -1,0 +1,30 @@
+format: lynewright-integration/1
+id: lynewright.integration.docs-webhook
+name: Job Events
+version: 1.0.0
+lynewright_version: ^0.1.0
+runtime_kind: webhook
+endpoint_url: https://api.example.test/hooks/lynewright
+credentials:
+  - name: events.signing-key
+    description: HMAC key stored in Lynewright Settings.
+    required: true
+settings_schema:
+  schema_id: event_settings
+  fields:
+    - key: event_source
+      label: Event source
+      type: text
+      required: true
+webhook:
+  event_type: job.completed
+  payload_mapping:
+    job_id: data.id
+    status: data.status
+  verification:
+    mode: hmac_sha256
+    credential_ref: events.signing-key
+    signature_header: x-lynewright-signature
+    timestamp_header: x-lynewright-timestamp
+    delivery_header: x-event-id
+    tolerance_seconds: 300

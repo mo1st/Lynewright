@@ -1,0 +1,40 @@
+argv:
+  - ffmpeg
+  - -hide_banner
+  - -loglevel
+  - error
+  - -ss
+  - "{at_seconds}"
+  - -i
+  - "{input}"
+  - -frames:v
+  - "1"
+  - -vf
+  - "{width_filter}"
+  - -y
+  - "{output}"
+params:
+  width:
+    type: integer
+    min: 16
+    max: 1024
+  at_seconds:
+    type: number
+    min: 0
+    max: 3600
+    default: 0
+  width_filter:
+    type: string
+    derive:
+      from: width
+      format: "scale={value}:-1"
+inputs:
+  input:
+    extensions: [".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".webm"]
+    max_bytes: 20000000
+outputs:
+  glob: "*.png"
+limits:
+  timeout_seconds: 30
+  max_output_bytes: 1000000
+  max_concurrent_jobs: 2

@@ -1,0 +1,8 @@
+format: lynewright-integration/1
+id: lynewright.integration.fixture-incompatible
+name: Incompatible Fixture
+version: 1.0.0
+lynewright_version: '>=99.0.0'
+runtime_kind: mcp
+endpoint_url: http://127.0.0.1:8000/mcp
+operations: []

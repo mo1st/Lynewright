@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lynewright.dev/schemas/catalogue.schema.json",
+  "title": "Lynewright signed integration catalogue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "serial", "generated_at", "name", "entries"],
+  "properties": {
+    "format": {"const": "lynewright-catalogue/1"},
+    "serial": {"type": "integer", "minimum": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "name": {"type": "string", "minLength": 1, "maxLength": 200},
+    "entries": {"type": "array", "items": {"$ref": "#/$defs/entry"}}
+  },
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+    },
+    "semverRange": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "pattern": "^(\\^|>=|<=|>|<|==|!=|=)?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\s*(,|\\s)\\s*(\\^|>=|<=|>|<|==|!=|=)?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?)*$"
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capabilities", "egress", "media", "credential_refs"],
+      "properties": {
+        "capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 120}},
+        "egress": {"enum": ["none", "internet"]},
+        "media": {"enum": ["none", "read", "write"]},
+        "credential_refs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cpus", "memory_mb", "pids", "timeout_seconds"],
+      "properties": {
+        "cpus": {"type": "number", "exclusiveMinimum": 0, "maximum": 128},
+        "memory_mb": {"type": "integer", "minimum": 16, "maximum": 1048576},
+        "pids": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 86400}
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "date", "catalogue_commit"],
+      "properties": {
+        "reviewer": {"type": "string", "minLength": 1, "maxLength": 200},
+        "date": {"type": "string", "format": "date"},
+        "catalogue_commit": {"type": "string", "pattern": "^[0-9a-fA-F]{7,64}$"},
+        "notes_url": {"type": "string", "format": "uri", "pattern": "^https://"}
+      }
+    },
+    "yanked": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "date"],
+      "properties": {
+        "reason": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "date": {"type": "string", "format": "date"}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "kind", "licence", "source", "lynewright_version", "permissions", "review"],
+      "properties": {
+        "id": {"type": "string", "minLength": 3, "maxLength": 160, "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[^\\u0000-\\u001F\\u007F]+$", "description": "Optional plain-text display name."},
+        "summary": {"type": "string", "minLength": 1, "maxLength": 160, "pattern": "^[^\\u0000-\\u001F\\u007F]+$", "description": "Optional single-line plain-text summary."},
+        "description": {"type": "string", "minLength": 1, "maxLength": 2000, "pattern": "^[^\\u0000-\\u0009\\u000B\\u000C\\u000E-\\u001F\\u007F]*$", "description": "Optional plain text. Line breaks are allowed; render as text only, without HTML or Markdown interpretation."},
+        "version": {"$ref": "#/$defs/semver"},
+        "kind": {"enum": ["file", "package", "container"]},
+        "licence": {"type": "string", "minLength": 1, "maxLength": 120, "pattern": "^[A-Za-z0-9][A-Za-z0-9.+-]*$", "description": "SPDX license identifier for the artifact itself."},
+        "source": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+        "lynewright_version": {"$ref": "#/$defs/semverRange"},
+        "permissions": {"$ref": "#/$defs/permissions"},
+        "limits": {"$ref": "#/$defs/limits"},
+        "review": {"$ref": "#/$defs/review"},
+        "requires_operator_setup": {
+          "type": "array", "maxItems": 10, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 500}
+        },
+        "yanked": {"$ref": "#/$defs/yanked"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"enum": ["file", "package"]}}, "required": ["kind"]},
+          "then": {
+            "required": ["sha256"],
+            "properties": {"source": {"format": "uri", "pattern": "^https://"}}
+          }
+        },
+        {
+          "if": {"properties": {"kind": {"const": "package"}}, "required": ["kind"]},
+          "then": {"required": ["limits"]}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "container"}}, "required": ["kind"]},
+          "then": {
+            "required": ["limits"],
+            "not": {"required": ["sha256"]},
+            "properties": {"source": {"pattern": "^[a-z0-9][a-z0-9.-]*(?::[0-9]+)?(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)+@sha256:[a-fA-F0-9]{64}$"}}
+          }
+        }
+      ]
+    }
+  }
+}

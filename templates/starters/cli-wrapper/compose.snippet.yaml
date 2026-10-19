@@ -1,0 +1,18 @@
+services:
+  cli-wrapper:
+    build:
+      context: .
+      dockerfile: Containerfile
+    read_only: true
+    tmpfs:
+      - /work:size=256m,mode=1777
+    cpus: 1.0
+    mem_limit: 512m
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [lynewright-integration]
+
+networks:
+  lynewright-integration:
+    internal: true

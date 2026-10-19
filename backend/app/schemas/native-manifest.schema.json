@@ -1,0 +1,783 @@
+{
+  "$defs": {
+    "ExtensionAsyncOperationManifest": {
+      "additionalProperties": false,
+      "description": "Declarative polling contract for an operation that outlives a call.",
+      "properties": {
+        "poll_tool": {
+          "maxLength": 200,
+          "minLength": 3,
+          "title": "Poll Tool",
+          "type": "string"
+        },
+        "task_id_field": {
+          "default": "id",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Task Id Field",
+          "type": "string"
+        },
+        "poll_argument": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Poll Argument"
+        },
+        "state_field": {
+          "default": "state",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "State Field",
+          "type": "string"
+        },
+        "active_states": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Active States",
+          "type": "array"
+        },
+        "terminal_states": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Terminal States",
+          "type": "array"
+        }
+      },
+      "required": [
+        "poll_tool"
+      ],
+      "title": "ExtensionAsyncOperationManifest",
+      "type": "object"
+    },
+    "ExtensionDependencyManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 160,
+          "minLength": 3,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "ExtensionDependencyManifest",
+      "type": "object"
+    },
+    "ExtensionManagementManifest": {
+      "additionalProperties": false,
+      "description": "Provider-neutral sections and remote resource declarations.",
+      "properties": {
+        "sections": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Sections",
+          "type": "array"
+        },
+        "resources": {
+          "items": {
+            "$ref": "#/$defs/ExtensionManagementResource"
+          },
+          "maxItems": 100,
+          "title": "Resources",
+          "type": "array"
+        },
+        "supports_oauth": {
+          "default": false,
+          "title": "Supports Oauth",
+          "type": "boolean"
+        },
+        "oauth": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExtensionOAuthManagement"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "supports_webhooks": {
+          "default": false,
+          "title": "Supports Webhooks",
+          "type": "boolean"
+        },
+        "supports_health": {
+          "default": true,
+          "title": "Supports Health",
+          "type": "boolean"
+        },
+        "supports_diagnostics": {
+          "default": true,
+          "title": "Supports Diagnostics",
+          "type": "boolean"
+        },
+        "supports_settings": {
+          "default": true,
+          "title": "Supports Settings",
+          "type": "boolean"
+        }
+      },
+      "title": "ExtensionManagementManifest",
+      "type": "object"
+    },
+    "ExtensionManagementResource": {
+      "additionalProperties": false,
+      "description": "Descriptive metadata for the generic integration management plane.\n\nThis model deliberately contains no entrypoints or executable references.\nProvider behavior is still resolved only through ``provides`` and the\nallowlisted runtime compiler; this section only tells the UI which generic\ncontrols are meaningful for a provider.",
+      "properties": {
+        "type": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Type",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "plural_label": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Plural Label",
+          "type": "string"
+        },
+        "parent_type": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Type"
+        },
+        "discoverable": {
+          "default": true,
+          "title": "Discoverable",
+          "type": "boolean"
+        },
+        "bindable": {
+          "default": true,
+          "title": "Bindable",
+          "type": "boolean"
+        },
+        "operations": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Operations",
+          "type": "array"
+        },
+        "display_fields": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Display Fields",
+          "type": "array"
+        },
+        "discovery_contract": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discovery Contract"
+        },
+        "discovery_operation": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discovery Operation"
+        },
+        "operation_contract": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operation Contract"
+        },
+        "operation_names": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "maxProperties": 20,
+          "title": "Operation Names",
+          "type": "object"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/ExtensionManagementResourceField"
+          },
+          "maxItems": 20,
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "label",
+        "plural_label"
+      ],
+      "title": "ExtensionManagementResource",
+      "type": "object"
+    },
+    "ExtensionManagementResourceField": {
+      "additionalProperties": false,
+      "description": "A bounded, non-executable field used by a generic resource form.",
+      "properties": {
+        "key": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Key",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "type": {
+          "default": "text",
+          "enum": [
+            "text",
+            "number",
+            "boolean",
+            "enum",
+            "list"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Options",
+          "type": "array"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "max_items": {
+          "anyOf": [
+            {
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Items"
+        },
+        "normalization": {
+          "default": "trim",
+          "enum": [
+            "trim",
+            "hostname"
+          ],
+          "title": "Normalization",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "label"
+      ],
+      "title": "ExtensionManagementResourceField",
+      "type": "object"
+    },
+    "ExtensionModelSlotManifest": {
+      "additionalProperties": false,
+      "description": "A model an integration needs the operator to pick.\n\nThe integration declares the slot; Core discovers it from the active\nintegrations and AI provider settings shows one picker per slot, so a new\nintegration gets its own model pickers with no Core or frontend change.",
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_]{1,62}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "text",
+            "image",
+            "vision"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 300,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label"
+      ],
+      "title": "ExtensionModelSlotManifest",
+      "type": "object"
+    },
+    "ExtensionNetworkPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "allow": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Allow",
+          "type": "array"
+        }
+      },
+      "title": "ExtensionNetworkPolicy",
+      "type": "object"
+    },
+    "ExtensionOAuthManagement": {
+      "additionalProperties": false,
+      "description": "Declarative OAuth endpoints and credential references for the host.",
+      "properties": {
+        "authorization_url": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Authorization Url",
+          "type": "string"
+        },
+        "token_url": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Token Url",
+          "type": "string"
+        },
+        "client_id_ref": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Client Id Ref",
+          "type": "string"
+        },
+        "client_secret_ref": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Client Secret Ref",
+          "type": "string"
+        },
+        "scopes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Scopes",
+          "type": "array"
+        },
+        "use_pkce": {
+          "default": true,
+          "title": "Use Pkce",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "authorization_url",
+        "token_url",
+        "client_id_ref",
+        "client_secret_ref"
+      ],
+      "title": "ExtensionOAuthManagement",
+      "type": "object"
+    },
+    "ExtensionProvidesManifest": {
+      "additionalProperties": false,
+      "description": "One Core contract this integration implements, and the class behind it.\n\n`implementation` is a dotted `module:attribute` reference the host resolves\nat activation. It is deliberately not a file path: the loader imports it\nfrom an allowlisted package root, so a manifest names *which* shipped\nprovider to use and can never introduce new code.",
+      "properties": {
+        "contract": {
+          "maxLength": 160,
+          "minLength": 3,
+          "title": "Contract",
+          "type": "string"
+        },
+        "implementation": {
+          "maxLength": 512,
+          "minLength": 3,
+          "title": "Implementation",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0.0",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "invocation": {
+          "default": "direct",
+          "enum": [
+            "direct",
+            "sdk_scoped"
+          ],
+          "title": "Invocation",
+          "type": "string"
+        },
+        "async_operations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ExtensionAsyncOperationManifest"
+          },
+          "maxProperties": 50,
+          "title": "Async Operations",
+          "type": "object"
+        },
+        "operation_schemas": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "maxProperties": 50,
+          "title": "Operation Schemas",
+          "type": "object"
+        },
+        "model_slots": {
+          "items": {
+            "$ref": "#/$defs/ExtensionModelSlotManifest"
+          },
+          "maxItems": 20,
+          "title": "Model Slots",
+          "type": "array"
+        }
+      },
+      "required": [
+        "contract",
+        "implementation"
+      ],
+      "title": "ExtensionProvidesManifest",
+      "type": "object"
+    },
+    "ExtensionServiceManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "http",
+          "title": "Kind",
+          "type": "string"
+        },
+        "health_check": {
+          "pattern": "^/[A-Za-z0-9._~!$&'()*+,;=:@%/?-]{0,1023}$",
+          "title": "Health Check",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "health_check"
+      ],
+      "title": "ExtensionServiceManifest",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "enum": [
+        "1.0",
+        "1.1",
+        "1.2"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "id": {
+      "maxLength": 160,
+      "minLength": 3,
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "version": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "native",
+        "service"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "lynewright_version": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Lynewright Version",
+      "type": "string"
+    },
+    "sdk_version": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Sdk Version",
+      "type": "string"
+    },
+    "requested_capabilities": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Requested Capabilities",
+      "type": "array"
+    },
+    "credential_refs": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Credential Refs",
+      "type": "array"
+    },
+    "service": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExtensionServiceManifest"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "dependencies": {
+      "items": {
+        "$ref": "#/$defs/ExtensionDependencyManifest"
+      },
+      "maxItems": 100,
+      "title": "Dependencies",
+      "type": "array"
+    },
+    "contributions": {
+      "items": {
+        "enum": [
+          "services",
+          "jobs",
+          "events",
+          "mcp",
+          "settings",
+          "health",
+          "ui"
+        ],
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Contributions",
+      "type": "array"
+    },
+    "provides": {
+      "items": {
+        "$ref": "#/$defs/ExtensionProvidesManifest"
+      },
+      "maxItems": 50,
+      "title": "Provides",
+      "type": "array"
+    },
+    "network": {
+      "$ref": "#/$defs/ExtensionNetworkPolicy"
+    },
+    "management": {
+      "$ref": "#/$defs/ExtensionManagementManifest"
+    },
+    "settings_schema": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "maxLength": 512
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Settings Schema"
+    },
+    "backend": {
+      "anyOf": [
+        {
+          "maxLength": 512,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Backend"
+    },
+    "ui": {
+      "anyOf": [
+        {
+          "maxLength": 512,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ui"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "version",
+    "type",
+    "lynewright_version",
+    "sdk_version"
+  ],
+  "title": "ExtensionManifest",
+  "type": "object"
+}

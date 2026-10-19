@@ -1,0 +1,2 @@
+# No fenced shell snippets are included in the integration guide today.
+# If one is added, record: sha256(body)  why it is safe to review (never executed by tests).

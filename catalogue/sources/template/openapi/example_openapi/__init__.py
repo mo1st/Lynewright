@@ -1,0 +1,1 @@
+"""Local OpenAPI starter service."""

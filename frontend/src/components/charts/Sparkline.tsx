@@ -1,0 +1,2 @@
+import { extent, scaleX, scaleY } from "./chartUtils";
+export function Sparkline({ values, label }: { values: number[]; label: string }) { const [min, max] = extent(values); const points = values.map((value, index) => `${scaleX(index, values.length, 80, 3)},${scaleY(value, min, max, 26, 3)}`).join(" "); return <svg className="ui-sparkline" viewBox="0 0 80 26" role="img" aria-label={label}><polyline points={points} fill="none" stroke="var(--color-chart-1)" strokeWidth="2" /></svg>; }
