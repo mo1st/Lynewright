@@ -46,7 +46,7 @@ class MCPToolRegistry(CoreToolRuntime):
         if access_token is None:
             raise ValueError("Authentication required.")
         if access_token.token.startswith("qxc_"):
-            return self.clients.authenticate(access_token.token)
+            return self.clients.authenticate(access_token.token, audience="mcp")
         if self.oauth_service is None:
             raise ValueError("OAuth authorization is unavailable.")
         return self.oauth_service.actor_for_access_token(access_token)
@@ -79,6 +79,7 @@ def _tool_visible_to_actor(tool: Any, actor: CapabilityActor) -> bool:
 
 
 _ASSISTANT_TOOL_NAMES = frozenset({
+    "operations.search", "automation.plan", "automation.get_plan", "automation.apply",
     "lines.list", "lines.get", "runs.list", "runs.get", "runs.start",
     "runs.cancel", "runs.retry_stage", "reviews.list", "reviews.get", "reviews.decide",
 })
@@ -124,7 +125,7 @@ class LynewrightTokenVerifier:
 
     async def verify_token(self, token: str) -> AccessToken | None:
         try:
-            actor = self.clients.authenticate(token)
+            actor = self.clients.authenticate(token, audience="mcp")
         except PlatformServiceError:
             return None
         return AccessToken(
@@ -160,7 +161,7 @@ def create_mcp_server(
     registry = MCPToolRegistry(store, max_tool_calls_per_minute=max_tool_calls_per_minute)
     oauth = MCPOAuthService(store, issuer_url=f"{base_url}/", resource_url=resource_url)
     registry.oauth_service = oauth
-    register_assistant_tools(registry)
+    register_assistant_tools(registry, include_automation=True)
     provider = MCPAuthorizationProvider(oauth, registry.clients)
     oauth_enabled = mcp_oauth_enabled()
     if not oauth_enabled:

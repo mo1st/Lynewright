@@ -139,6 +139,7 @@ def canonical_public_origin(public_url: str) -> str:
 def is_read_capability(scope: str) -> bool:
     return (
         scope.endswith(":read")
+        or scope == "integrations:discover"
         or scope in {"system:diagnostics", "credentials:list", "credentials:status", "ai:read-config"}
     )
 
@@ -1234,7 +1235,7 @@ class MCPAuthorizationProvider:
     async def load_access_token(self, token: str) -> AccessToken | None:
         if token.startswith("qxc_"):
             try:
-                actor = self.legacy_clients.authenticate(token)
+                actor = self.legacy_clients.authenticate(token, audience="mcp")
             except Exception:
                 return None
             from app.services.platform_capabilities import allowed_capabilities

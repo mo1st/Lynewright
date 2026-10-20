@@ -15,7 +15,14 @@ export type ManagedUser = { id: number; email: string; role: string; is_active: 
 export type CredentialMetadata = { name: string; kind: string | null; configured: boolean; created_at: string | null; updated_at: string | null };
 export type CredentialReference = { consumer: string; label: string };
 export type ManagedMedia = { id: string; name: string; content_type: string; project_id: string; created_at: string; bytes: number; integration_id: string };
-export type PlatformMcpClient = { id: string; name: string; type: string; permission_mode: string; granted_capabilities: string[]; enabled: boolean; created_at: string; updated_at: string; last_authenticated_at: string | null; tenant_id: string; project_ids: string[]; on_behalf_of: string };
+export type PlatformMcpClient = { id: string; name: string; type: string; audience?: "mcp" | "api"; permission_mode: string; granted_capabilities: string[]; enabled: boolean; created_at: string; updated_at: string; last_authenticated_at: string | null; tenant_id: string; project_ids: string[]; on_behalf_of: string };
+export type AutomationPlan = {
+  id: string; project_id: string; status: string; revision: number; plan_hash: string; expires_at_epoch: number;
+  objective: string; constraints: Record<string, unknown>;
+  line_preview: { id: string; name: string; enabled: boolean; persisted: boolean; definition: Record<string, unknown> };
+  operation_snapshots: Array<{ operation_id: string; revision: string; contract: string; operation: string; capability: string; risk_class: string }>;
+  authorization: { approved: boolean; approved_by: string; approved_at: string; expires_at_epoch: number | null };
+};
 export type MCPOAuthRequestInfo = { request_id: string; application_name: string; redirect_origin: string; requested_scopes: string[]; default_scopes: string[]; account_email: string; expires_at: number };
 export type MCPOAuthDecision = { approved: boolean; scopes: string[]; confirm_writes: boolean };
 export type MCPOAuthDecisionResult = { redirect_to: string };
@@ -96,8 +103,10 @@ export const api = {
   deleteCredential(name: string) { return apiRequest<{ name: string; deleted: boolean }>(`/api/settings/credentials/${encodeURIComponent(name)}`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirm_name: name }) }); },
   listManagedMedia() { return apiRequest<{ items: ManagedMedia[] }>("/api/media"); },
   listPlatformMcpClients() { return apiRequest<{ clients: PlatformMcpClient[]; mcp_url: string }>("/api/platform/mcp-clients"); },
-  createPlatformMcpClient(payload: { name: string; client_type: "mcp"; permission_mode: "custom"; granted_capabilities: string[] }) { return apiRequest<PlatformMcpClient & { access_token: string }>("/api/platform/mcp-clients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); },
+  createPlatformMcpClient(payload: { name: string; client_type: "mcp"; audience?: "mcp" | "api"; permission_mode: "custom"; granted_capabilities: string[] }) { return apiRequest<PlatformMcpClient & { access_token: string }>("/api/platform/mcp-clients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); },
   deletePlatformMcpClient(id: string) { return apiRequest<void>(`/api/platform/mcp-clients/${encodeURIComponent(id)}`, { method: "DELETE" }); },
+  listAutomationPlans(projectId: string) { return apiRequest<{ items: AutomationPlan[] }>(`/api/automation/plans?project_id=${encodeURIComponent(projectId)}`); },
+  authorizeAutomationPlan(id: string, payload: { project_id: string; revision: number; plan_hash: string }) { return apiRequest<AutomationPlan>(`/api/automation/plans/${encodeURIComponent(id)}/authorize`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); },
   deleteManagedMedia(id: string) { return apiRequest<{ id: string; deleted: boolean }>(`/api/media/${encodeURIComponent(id)}`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirm_media_id: id }) }); },
   getApplicationLogs(params: { level?: string; category?: string; search?: string } = {}) {
     return apiRequest<ApplicationLogList>(query("/api/logs", { ...params, project_id: getActiveProjectId(), limit: 100 }));

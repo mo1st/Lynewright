@@ -11,7 +11,7 @@ type Props = { requestId: string | null };
 
 function isReadCapability(scope: string): boolean {
   return scope.endsWith(":read")
-    || ["system:diagnostics", "credentials:list", "credentials:status", "ai:read-config"].includes(scope);
+    || ["integrations:discover", "system:diagnostics", "credentials:list", "credentials:status", "ai:read-config"].includes(scope);
 }
 
 function permissionLabel(scope: string): string {

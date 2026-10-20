@@ -113,6 +113,7 @@ def ensure_ai_schema(db: sqlite3.Connection) -> None:
 
 def _schema_steps() -> tuple[tuple[str, Callable[[sqlite3.Connection], None]], ...]:
     # Imports are local so database.py remains the dependency root of services.
+    from app.services.automation_plans import AutomationPlanService
     from app.services.content_review import ContentReviewService
     from app.services.catalogue import CatalogueService
     from app.services.control_plane_action_tokens import ControlPlaneActionTokenService
@@ -173,6 +174,7 @@ def _schema_steps() -> tuple[tuple[str, Callable[[sqlite3.Connection], None]], .
         ("application_logs", ensure_application_logs_schema),
         ("tenant_schema", tenant_relations),
         ("platform_services", platform_schema),
+        ("automation_plans", AutomationPlanService.ensure_schema),
         ("media_links", MediaLinksService.ensure_schema),
         ("ai_provider_settings", ensure_ai_schema),
         ("integration_connections", ConnectionProfileService.ensure_schema),
@@ -216,7 +218,7 @@ def _schema_steps() -> tuple[tuple[str, Callable[[sqlite3.Connection], None]], .
 
 CORE_SCHEMA_ORDER = (
     "tenants", "users", "sessions", "application_logs", "tenant_schema",
-    "platform_services", "media_links", "ai_provider_settings", "integration_connections",
+    "platform_services", "automation_plans", "media_links", "ai_provider_settings", "integration_connections",
     "integration_definition_identity", "integration_drafts", "integration_external_resources",
     "integration_gateway", "integration_jobs", "integration_oauth",
     "integration_operations", "integration_provider_selection", "integration_state",

@@ -27,6 +27,15 @@ FRONTEND_RELATIVE = "frontend/src/"
 ALLOWLIST = (
     (
         {
+            "backend/app/routers/automation_plans.py",
+            "backend/app/services/assistant_tools.py",
+            "backend/app/tests/test_automation_plans.py",
+        },
+        {_word("cata", "log")},
+        "Assistant planning adapters and tests call the existing generic operation-directory factory; this term occurs in its API name.",
+    ),
+    (
+        {
             "backend/app/services/integration_operations.py",
             "backend/app/services/operator_integration_tools.py",
             "backend/app/services/operator_runtime/loop.py",

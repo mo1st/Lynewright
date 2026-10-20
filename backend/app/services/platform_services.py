@@ -261,7 +261,8 @@ class PlatformStore:
                 last_authenticated_at TEXT,
                 tenant_id TEXT NOT NULL DEFAULT 'ten_default',
                 project_ids_json TEXT NOT NULL DEFAULT '[]',
-                on_behalf_of TEXT NOT NULL DEFAULT ''
+                on_behalf_of TEXT NOT NULL DEFAULT '',
+                audience TEXT NOT NULL DEFAULT 'mcp'
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_platform_clients_name
                 ON platform_clients(name);
@@ -285,6 +286,7 @@ class PlatformStore:
             ("tenant_id", "TEXT NOT NULL DEFAULT 'ten_default'"),
             ("project_ids_json", "TEXT NOT NULL DEFAULT '[]'"),
             ("on_behalf_of", "TEXT NOT NULL DEFAULT ''"),
+            ("audience", "TEXT NOT NULL DEFAULT 'mcp'"),
         ):
             if column not in client_columns:
                 db.execute(f"ALTER TABLE platform_clients ADD COLUMN {column} {declaration}")

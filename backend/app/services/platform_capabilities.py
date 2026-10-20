@@ -20,7 +20,7 @@ from app.services.platform_services import (
 )
 
 
-PUBLIC_CAPABILITIES = frozenset({
+_LEGACY_PUBLIC_CAPABILITIES = frozenset({
     "system:read", "system:diagnostics",
     "projects:read", "projects:create", "projects:update", "projects:delete",
     "jobs:read", "jobs:create", "jobs:cancel", "jobs:retry",
@@ -40,11 +40,17 @@ PUBLIC_CAPABILITIES = frozenset({
     "reviews:read", "reviews:decide",
     "mcp:client:use", "mcp:client:configure",
 })
+AUTOMATION_CAPABILITIES = frozenset({
+    "automation:read", "automation:plan", "automation:provision", "automation:activate",
+    "automations:manage",
+})
+INTEGRATION_DISCOVERY_CAPABILITIES = frozenset({"integrations:discover", "connections:request-setup"})
+PUBLIC_CAPABILITIES = _LEGACY_PUBLIC_CAPABILITIES | AUTOMATION_CAPABILITIES | INTEGRATION_DISCOVERY_CAPABILITIES
 RESERVED_CAPABILITIES = frozenset({
     "system:internal", "core-db:read", "core-db:write", "auth:internal",
     "capabilities:internal", "runtime:internal",
 })
-FULL_ACCESS_CAPABILITIES = PUBLIC_CAPABILITIES
+FULL_ACCESS_CAPABILITIES = _LEGACY_PUBLIC_CAPABILITIES
 _ALL_CAPABILITIES = PUBLIC_CAPABILITIES | RESERVED_CAPABILITIES
 
 
@@ -152,8 +158,8 @@ class ClientAuthorizationService:
         try:
             with self.store.connection() as db, db:
                 db.execute(
-                    "INSERT INTO platform_clients (id,name,client_type,permission_mode,granted_capabilities_json,token_hash,tenant_id,project_ids_json,on_behalf_of) VALUES (?,?,?,?,?,?,?,?,?)",
-                    (client_id, payload.name, payload.client_type, payload.permission_mode, json.dumps(sorted(grants)), self._token_hash(token), tenant_id, json.dumps(sorted(set(project_ids or payload.project_ids))), on_behalf_of),
+                    "INSERT INTO platform_clients (id,name,client_type,permission_mode,granted_capabilities_json,token_hash,tenant_id,project_ids_json,on_behalf_of,audience) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                    (client_id, payload.name, payload.client_type, payload.permission_mode, json.dumps(sorted(grants)), self._token_hash(token), tenant_id, json.dumps(sorted(set(project_ids or payload.project_ids))), on_behalf_of, payload.audience),
                 )
         except sqlite3.IntegrityError as exc:
             raise PlatformConflictError("A client with that name already exists.") from exc
@@ -182,13 +188,13 @@ class ClientAuthorizationService:
                 raise PlatformConflictError("A client with that name already exists.") from exc
         return self.get_client(client_id, actor=actor)
 
-    def authenticate(self, token: str) -> CapabilityActor:
+    def authenticate(self, token: str, *, audience: str | None = None) -> CapabilityActor:
         if not token or not token.startswith("qxc_"):
             raise PlatformOperationError("Client authentication failed.")
         candidate_hash = self._token_hash(token)
         with self.store.connection() as db, db:
             row = db.execute("SELECT * FROM platform_clients WHERE token_hash=?", (candidate_hash,)).fetchone()
-            if row is None or not bool(row["enabled"]):
+            if row is None or not bool(row["enabled"]) or (audience and str(row["audience"] or "mcp") != audience):
                 raise PlatformOperationError("Client authentication failed.")
             db.execute("UPDATE platform_clients SET last_authenticated_at=CURRENT_TIMESTAMP WHERE id=?", (row["id"],))
         return CapabilityActor(
@@ -242,6 +248,7 @@ class ClientAuthorizationService:
     def _public(row: sqlite3.Row) -> dict[str, Any]:
         return {
             "id": str(row["id"]), "name": str(row["name"]), "type": str(row["client_type"]),
+            "audience": str(row["audience"] or "mcp"),
             "permission_mode": str(row["permission_mode"]),
             "granted_capabilities": json.loads(str(row["granted_capabilities_json"] or "[]")),
             "enabled": bool(row["enabled"]), "created_at": row["created_at"],

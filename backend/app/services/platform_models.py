@@ -58,6 +58,7 @@ class EventCreateInput(_PlatformInput):
 class ClientCreateInput(_PlatformInput):
     name: str = Field(min_length=1, max_length=120)
     client_type: Literal["mcp", "cli", "automation", "extension"] = "mcp"
+    audience: Literal["mcp", "api"] = "mcp"
     permission_mode: Literal["restricted", "custom", "full"] = "restricted"
     granted_capabilities: list[str] = Field(default_factory=list, max_length=100)
     project_ids: list[str] = Field(default_factory=list, max_length=100)

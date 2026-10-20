@@ -22,7 +22,7 @@ from app.database import init_db, purge_expired_sessions
 from app.middleware.request_logging import RequestLoggingMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.routers import (
-    ai_provider_settings, ai_readiness, application_logs, auth, catalogue, control_plane,
+    ai_provider_settings, ai_readiness, application_logs, auth, automation_plans, catalogue, control_plane,
     health, integration_gateway, integration_management, interactions,
     integration_runner, mcp_oauth, media_library, media_links, operator, platform_mcp_clients,
     production_lines, review_images, runtime_jobs, settings, telegram_webhooks, tenants,
@@ -136,7 +136,7 @@ async def log_http_error(request: Request, exc: StarletteHTTPException):
 
 
 CORE_ROUTERS = (
-    health, auth, tenants, operator, production_lines, integration_gateway,
+    health, auth, tenants, operator, production_lines, automation_plans, integration_gateway,
     integration_management, interactions, mcp_oauth,
     platform_mcp_clients, application_logs, telegram_webhooks, control_plane,
     ai_provider_settings, ai_readiness, settings, runtime_jobs, review_images,

@@ -115,7 +115,7 @@ def _tool(
     ))
 
 
-def register_assistant_tools(runtime: CoreToolRuntime) -> None:
+def register_assistant_tools(runtime: CoreToolRuntime, *, include_automation: bool = False) -> None:
     """Register tool names as transport wrappers; engine/review services own behavior."""
     obj = {"type": "object", "additionalProperties": False}
     project_schema = obj | {"properties": {"project_id": {"type": "string"}}}
@@ -263,6 +263,57 @@ def register_assistant_tools(runtime: CoreToolRuntime) -> None:
         )
         return {"decision": decision, "run": _run_summary(continued)}
 
+    def operations_search(actor: CapabilityActor, args: dict[str, Any]) -> dict[str, Any]:
+        tenant_id, project_id = _project(actor, args.get("project_id", ""))
+        from app.services.automation_plans import public_operation_cards
+        from app.services.integration_operations import build_tenant_operation_catalog
+
+        operation_directory = build_tenant_operation_catalog(tenant_id)
+        query = str(args.get("query") or "").strip()
+        if len(query) > 200:
+            raise PlatformValidationError("Operation search queries are limited to 200 characters.")
+        limit = max(1, min(int(args.get("limit") or 20), 50))
+        candidates = operation_directory.search(actor, project_id=project_id, query=query, limit=limit,
+                                    compact=True, include_schema=True)
+        return {"items": public_operation_cards(candidates)}
+
+    def automation_plan(actor: CapabilityActor, args: dict[str, Any]) -> dict[str, Any]:
+        tenant_id, project_id = _project(actor, args.get("project_id", ""))
+        from app.services.automation_plans import AutomationPlanService
+        from app.services.integration_operations import build_tenant_operation_catalog
+
+        operation_directory = build_tenant_operation_catalog(tenant_id)
+        plan_args = {key: value for key, value in args.items() if key in {
+            "project_id", "objective", "line_name", "definition", "constraints",
+            "plan_id", "expected_revision",
+        }}
+        plan_args["project_id"] = project_id
+        return AutomationPlanService(runtime.store).create_or_revise(
+            plan_args, tenant_id=tenant_id, created_by=_actor_label(actor),
+            originating_client_id=actor.client_id,
+            operation_directory=operation_directory, operation_actor=actor,
+        )
+
+    def automation_get_plan(actor: CapabilityActor, args: dict[str, Any]) -> dict[str, Any]:
+        tenant_id, project_id = _project(actor, args.get("project_id", ""))
+        from app.services.automation_plans import AutomationPlanService
+
+        return AutomationPlanService(runtime.store).get_plan(
+            str(args.get("plan_id") or ""), tenant_id=tenant_id, project_id=project_id,
+        )
+
+    def automation_apply(actor: CapabilityActor, args: dict[str, Any]) -> dict[str, Any]:
+        tenant_id, project_id = _project(actor, args.get("project_id", ""))
+        from app.services.automation_plans import AutomationPlanService
+        from app.services.integration_operations import build_tenant_operation_catalog
+
+        operation_directory = build_tenant_operation_catalog(tenant_id)
+        return AutomationPlanService(runtime.store).apply_preview(
+            str(args.get("plan_id") or ""), tenant_id=tenant_id, project_id=project_id,
+            revision=int(args.get("revision") or 0), plan_hash=str(args.get("plan_hash") or ""),
+            created_by=_actor_label(actor), operation_directory=operation_directory, operation_actor=actor,
+        )
+
     line_id_schema = obj | {"required": ["line_id"], "properties": {"line_id": {"type": "string"}, **project_schema["properties"]}}
     run_schema = obj | {"required": ["run_id"], "properties": {"run_id": {"type": "string"}, **project_schema["properties"]}}
     review_schema = obj | {"required": ["run_id"], "properties": {"run_id": {"type": "string"}, "stage_id": {"type": "string"}, **project_schema["properties"]}}
@@ -270,6 +321,28 @@ def register_assistant_tools(runtime: CoreToolRuntime) -> None:
         "run_id": {"type": "string"}, "stage_id": {"type": "string"},
         "decision": {"type": "string", "enum": ["approve", "reject"]},
         "reason": {"type": "string"}, **project_schema["properties"],
+    }}
+    operations_schema = obj | {"properties": {
+        "project_id": {"type": "string"}, "query": {"type": "string", "maxLength": 200},
+        "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+    }}
+    plan_schema = obj | {"required": ["project_id", "objective", "line_name", "definition"], "properties": {
+        "project_id": {"type": "string", "minLength": 1},
+        "objective": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "line_name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "definition": {"type": "object"}, "constraints": {"type": "object"},
+        "plan_id": {"type": "string", "pattern": "^apl_[a-f0-9]{32}$"},
+        "expected_revision": {"type": "integer", "minimum": 1},
+    }}
+    plan_reference_schema = obj | {"required": ["plan_id"], "properties": {
+        "plan_id": {"type": "string", "pattern": "^apl_[a-f0-9]{32}$"},
+        **project_schema["properties"],
+    }}
+    apply_schema = obj | {"required": ["plan_id", "revision", "plan_hash"], "properties": {
+        "plan_id": {"type": "string", "pattern": "^apl_[a-f0-9]{32}$"},
+        "revision": {"type": "integer", "minimum": 1},
+        "plan_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        **project_schema["properties"],
     }}
     tools = [
         ("lines.list", "lines:read", "List production lines in the authorized project.", lines_list, project_schema, True, False),
@@ -290,6 +363,13 @@ def register_assistant_tools(runtime: CoreToolRuntime) -> None:
         ("reviews.get", "reviews:read", "Get a waiting review item and short-lived media links.", reviews_get, review_schema, True, False),
         ("reviews.decide", "reviews:decide", "Approve or reject a review when its line allows assistant decisions.", reviews_decide, decision_schema, False, True),
     ]
+    if include_automation:
+        tools.extend([
+        ("operations.search", "integrations:discover", "Search installed operations that this assistant is authorized to use in a project.", operations_search, operations_schema, True, False),
+            ("automation.plan", "automation:plan", "Create or revise a validated production-line preview from installed operations.", automation_plan, plan_schema, False, False),
+            ("automation.get_plan", "automation:read", "Read an automation plan, its current immutable revision, and approval status.", automation_get_plan, plan_reference_schema, True, False),
+            ("automation.apply", "automation:provision", "Apply an approved plan by creating its disabled preview line.", automation_apply, apply_schema, False, False),
+        ])
     for name, capability, description, handler, schema, read_only, destructive in tools:
         _tool(runtime, name, capability, description, handler, schema,
               read_only=read_only, destructive=destructive)
