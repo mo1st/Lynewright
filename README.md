@@ -56,6 +56,16 @@ A production line is any repeatable process with clear steps. Some examples:
 
 Each line is built from the integrations you install; Lynewright supplies the engine, the review gates, the safety model and the dashboard.
 
+## Work with an external AI assistant
+
+Use an external AI assistant, such as Codex, Gemini or Claude Code, to help turn a workflow idea into a production line. Connect a compatible client through MCP, or use Lynewright's REST automation API with a separately scoped credential.
+
+Today, an authorized assistant can discover **installed operations**, inspect their input schemas, draft a line and submit it for administrator approval. After approval, it can apply that exact revision to create a **disabled preview line**. Enabling and running the line are separate actions. See the [automation plans API](docs/automation-plans-api.md) for permissions and approval details.
+
+If a workflow needs a missing capability, an external coding assistant can help find suitable software or build a small application or adapter. That component can connect through Lynewright's existing OpenAPI, MCP, CLI or native-package integration mechanisms; see the [integration guide](docs/integrations-howto.md). Any research, code generation or software installation performed outside Lynewright depends on the assistant's own tools, access and permissions.
+
+**The direction is to reduce manual setup across many kinds of workflows. Fully unattended discovery, installation and deployment of arbitrary projects is not available through the current planning tools.** Broader source discovery and approved installation and deployment are planned in the [AI-managed production lines roadmap](docs/plans/ai-managed-production-lines.md). Installation policies, credentials and required approvals still apply.
+
 ## Quick start
 
 Read the [installer](install.sh), then run:
